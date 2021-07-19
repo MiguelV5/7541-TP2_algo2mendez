@@ -1,0 +1,10 @@
+entrenador6;6
+entrenador5;5
+pokemon1;1;2;3;4;5
+entrenador4;4
+pokemon1;1;2;3;4;5
+pokemon2;1;2;3;4;5
+entrenador1;1
+entrenador2;2
+pokemon1;1;2;3;4;5
+entrenador7;7

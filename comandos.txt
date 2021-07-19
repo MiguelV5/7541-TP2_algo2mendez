@@ -1,0 +1,36 @@
+Hola, otra vez la gente de Soporte con mas ayuda.
+
+La función salon_ejecutar_comando es una función que recibe un string con comandos y ejecuta el comando recibido dentro del salón. Además, devuelve un string con el resultado de ejecutar el comando.
+
+Los comandos contienen 2 partes separadas por el caracter ':'. La primer parte define el comando y la segunda parte define los parámetros de ese comando.
+
+El resultado de ejecutar un comando es un string reservado con malloc que debe ser liberado con free por el usuario. Los resultados se devuelven en formato csv. Es decir que las respuestas estan formadas por registros con campos separados por comas, y cada línea del string es un registro. En caso de error, la función devuelve NUL (no un string vacío).
+
+Comandos:
+
+"ENTRENADORES"
+Pide el listado de los entrenadores almacenados en el salon de la fama. Devuelve registros de la forma "entrenador,victorias",  donde <entrenador> es el nombre del entrenador y <victorias> es la cantidad de victorias conseguidas en la liga. Los registros deben devolverse ordenados por orden alfabetico.
+
+"ENTRENADORES:victorias,n"
+Pide un listado de entrenadores que por lo menos tienen <n> victorias en la liga. Cada registro es de la forma "entrenador", donde <entrenador> es el nombre del entrenador. Los resultados deben devolverse en orden alfabético.
+
+"ENTRENADORES:pokemon,nombre"
+Pide un listado de entrenadores que tienen por lo menos un pokemon con el nombre dado. Cada registro es de la forma "entrenador", donde <entrenador> es el nombre del entrenador. Los resultados deben devolverse en orden alfabético.
+
+"EQUIPO:nombre"
+Devuelve el equipo pokemon del entrenador llamado <nombre>. Cada registro consta de los datos de un pokemon. El formato de cada registro es "nombre,nivel,defensa,fuerza,inteligencia,velocidad".
+
+"REGLAS"
+Devuelve las reglas de batalla registradas en el sistema. Cada registro es de la forma "nombre,descripción".
+
+"COMPARAR:entrenador1,entrenador2,nombreregla"
+Compara dos entrenadores según una regla de batalla. Devuelve un registro por cada una de los enfrentamientos. Cada registro es un "1" si ganó el pokemon del entrenador 1 o "2" si ganó el pokemon del entrenador 2.
+
+"AGREGAR_POKEMON:nombre-entrenador,nombre-pokemon,nivel,defensa,fuerza,inteligencia,velocidad"
+Agrega un pokemon a un entrenador. Devuelve el string "OK".
+
+"QUITAR_POKEMON:nombre-entrenador,nombre-pokemon"
+Quita un pokemon de un entrenador. Devuelve el string "OK" si pudo. Tener en cuenta que un entrenador no puede tener menos de 1 Pokemon.
+
+"GUARDAR:nombre-archivo"
+Guarda los datos del salón en un archivo con el nombre dado. Devuelve el string "OK" si pudo.
