@@ -106,9 +106,13 @@
 ▒▒▒▒▒▒▒▒▒▒▒▒  Aclaraciones:  ▒▒▒▒▒▒▒▒▒▒▒▒ 
 
 
-    ▒▒▒▒    ▒▒▒▒
-
-        
+    ▒▒▒▒  Sobre orden de realización de las pruebas  ▒▒▒▒
+    
+        Para este TP no realicé todas las pruebas en el mismo orden secuencial
+        que se ve reflejado en pruebas.c, aunque de igual manera fuí probando
+        cada función cuando fué necesario. El orden que figura en pruebas.c
+        fué pensado para tener todas las pruebas relacionadas a un mismo
+        propósito en bloques organizados.
 
 
     ▒▒▒▒  Sobre  ▒▒▒▒

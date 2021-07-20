@@ -3,6 +3,11 @@
 #include "abb.h"
 #include "util.h"
 
+const char SEPARADOR_EN_LECTURA = ';';
+#define CANT_CAMPOS_ENTRENADOR 2
+#define CANT_CAMPOS_POKEMON 6
+
+
 struct _salon_t{
     abb_t* abb_entrenadores;
 };
