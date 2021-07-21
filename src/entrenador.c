@@ -126,7 +126,21 @@ int entrenador_agregar_pokemon(entrenador_t* entrenador, char** datos_pokemon){
 
 
 
-char** entrenador_comparar(entrenador_t* entrenador_1, entrenador_t* entrenador_2 , char* regla_de_batalla){
+int entrenador_comparar_nombres(void* entrenador_1, void* entrenador_2){
+    
+    entrenador_t* _entrenador_1 = entrenador_1;
+    entrenador_t* _entrenador_2 = entrenador_2; 
+
+    int comparacion_nombres = strcmp(_entrenador_1->nombre, _entrenador_2->nombre);
+
+    return comparacion_nombres;
+
+}
+
+
+
+
+char** entrenador_enfrentar(entrenador_t* entrenador_1, entrenador_t* entrenador_2 , char* regla_de_batalla){
 
     return NULL;
 
@@ -180,10 +194,11 @@ size_t entrenador_tamanio_equipo(entrenador_t* entrenador){
 
 
 
-void entrenador_destruir(entrenador_t* entrenador){
+void entrenador_destruir(void* entrenador){
 
-    free(entrenador->nombre);
-    lista_destruir(entrenador->equipo);
-    free(entrenador);
+    entrenador_t* _entrenador = entrenador;
+    free(_entrenador->nombre);
+    lista_destruir(_entrenador->equipo);
+    free(_entrenador);
 
 }

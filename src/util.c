@@ -217,7 +217,7 @@ char* fgets_alloc(FILE* archivo){
     }
     
     size_t longitud = 0;
-    size_t n = 1; //Uso: Ver README.txt
+    size_t cantidad_veces_reserva = 1; 
 
     if(lector_verif != NULL){
         longitud = strlen(str);
@@ -225,9 +225,9 @@ char* fgets_alloc(FILE* archivo){
 
     bool str_null = false;
 
-    while( (longitud == ((n*TAM_DEFECTO) - n)) && (!str_null)){ // Ver aclaración en README.txt
+    while( (longitud == ((cantidad_veces_reserva*TAM_DEFECTO) - cantidad_veces_reserva)) && (!str_null)){
         
-        str = realloc(str, (n+1)*TAM_DEFECTO*sizeof(char));
+        str = realloc(str, (cantidad_veces_reserva+1)*TAM_DEFECTO*sizeof(char));
         if(!str){
             str_null = true;
         }
@@ -238,7 +238,7 @@ char* fgets_alloc(FILE* archivo){
             longitud = strlen(str);
         }
 
-        n++;
+        cantidad_veces_reserva++;
 
     }
 

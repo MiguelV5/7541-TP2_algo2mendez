@@ -9,6 +9,7 @@ typedef struct _pokemon_t pokemon_t;
 typedef struct _entrenador_t entrenador_t;
 
 
+
 /**
  * Reserva en memoria un entrenador con los datos recibidos.
  * Los datos vienen separados en strings en un vector
@@ -34,13 +35,26 @@ int entrenador_agregar_pokemon(entrenador_t* entrenador, char** datos_pokemon);
 
 
 /**
+ * Compara los nombres de dos entrenadores entre sí (Recibe a los ENTRENADORES como punteros genéricos).
+ * Devuelve:
+ * - Un entero positivo si el nombre del entrenador_1 es MAYOR
+ *   que el de entrenador_2 alfabéticamente.
+ * - Un entero negativo si el nombre del entrenador_1 es MENOR
+ *   que el de entrenador_2 alfabéticamente.
+ * - 0 si son iguales.
+*/
+int entrenador_comparar_nombres(void* entrenador_1, void* entrenador_2);
+
+
+
+/**
  * Compara los equipos de dos entrenadores pokemon por pokemon según
  * la regla de batalla recibida.
  * Devuelve un vector de strings con
  * los resultados de cada enfrentamiento por separado.
  * Devuelve NULL en caso de error.
 */
-char** entrenador_comparar(entrenador_t* entrenador_1, entrenador_t* entrenador_2 , char* regla_de_batalla);
+char** entrenador_enfrentar(entrenador_t* entrenador_1, entrenador_t* entrenador_2 , char* regla_de_batalla);
 
 
 /**
@@ -71,7 +85,7 @@ size_t entrenador_tamanio_equipo(entrenador_t* entrenador);
 /**
  * Destruye al entrenador recibido y a su equipo pokemon.
 */
-void entrenador_destruir(entrenador_t* entrenador);
+void entrenador_destruir(void* entrenador);
 
 
 

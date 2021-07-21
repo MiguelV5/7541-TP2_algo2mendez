@@ -6,6 +6,14 @@
 #define FALLO -1
 #define EXITO 0
 
+#define SALON_1E_1P "archivos_prueba/salon_1e_1p.txt"
+#define SALON_1E_SIN_P "archivos_prueba/salon_1e_sin_p.txt"
+#define SALON_2E_2P "archivos_prueba/salon_2e_2p.txt"
+#define SALON_6E_ALGUNOS_SIN_P "archivos_prueba/salon_6e_con_algunos_sin_p.txt"
+#define SALON_2E_CON_P_EN_DISTINTA_CANTIDAD "archivos_prueba/salon_2e_con_p_en_distinta_cantidad.txt"
+
+
+
 //////////// DESTRUCCION DE ELEMENTOS EN LISTA ////////////
 
 /**
@@ -179,7 +187,8 @@ void DadosParametrosValidos_AlAgregarPokemones_SeAgreganAlEquipoCorrectamente(){
 
 void DadoNombreDeArchivoInexistente_SiSePideLeerArchivo_SeDevuelveNull(){
 
-
+    pa2m_afirmar( salon_leer_archivo("archivos_prueba/Holanoexisto.txt")==NULL , "No se puede crear un salón a partir de un archivo inexistente.")
+    
     printf("\n");
 
 }
@@ -188,7 +197,11 @@ void DadoNombreDeArchivoInexistente_SiSePideLeerArchivo_SeDevuelveNull(){
 
 void DadoArchivoCon1EntrenadorCon1Pokemon_AlLeerArchivo_SeCreaSalonCorrectamente(){
 
+    salon_t* salon = salon_leer_archivo(SALON_1E_1P);
 
+    pa2m_afirmar(salon!=NULL , "Se lee correctamente un archivo con 1 entrenador y 1 pokemon.");
+
+    salon_destruir(salon);
     printf("\n");
 
 }
@@ -197,6 +210,7 @@ void DadoArchivoCon1EntrenadorCon1Pokemon_AlLeerArchivo_SeCreaSalonCorrectamente
 
 void DadoArchivoCon1EntrenadorSinPokemon_AlLeerArchivo_SeDevuelveNull(){
 
+    pa2m_afirmar(salon_leer_archivo(SALON_1E_SIN_P)==NULL , "Leer un archivo con un entrenador sin pokemon devuelve NULL.");
 
     printf("\n");
 
@@ -206,7 +220,11 @@ void DadoArchivoCon1EntrenadorSinPokemon_AlLeerArchivo_SeDevuelveNull(){
 
 void DadoArchivoCon2EntrenadoresCon2PokemonCadaUno_AlLeerArchivo_SeCreaSalonCorrectamente(){
 
+    salon_t* salon = salon_leer_archivo(SALON_2E_2P);
 
+    pa2m_afirmar(salon!=NULL , "Se lee correctamente un archivo con 2 entrenadores de 2 pokemon c/u.");
+
+    salon_destruir(salon);
     printf("\n");
 
 }
@@ -215,7 +233,21 @@ void DadoArchivoCon2EntrenadoresCon2PokemonCadaUno_AlLeerArchivo_SeCreaSalonCorr
 
 void DadoArchivoConVariosEntrenadoresConAlgunosDeEllosSinPokemones_AlLeerArchivo_SeDevuelveNull(){
 
+    pa2m_afirmar(salon_leer_archivo(SALON_6E_ALGUNOS_SIN_P)==NULL , "Leer un archivo con varios entrenadores, de los cuales algunos NO tienen pokemon devuelve NULL.");
 
+    printf("\n");
+
+}
+
+
+
+void DadoArchivoCon2EntrenadoresConDistintaCantidadDePokemonesCadaUno_AlLeerArchivo_SeCreaSalonCorrectamente(){
+
+    salon_t* salon = salon_leer_archivo(SALON_2E_CON_P_EN_DISTINTA_CANTIDAD);
+
+    pa2m_afirmar(salon!=NULL , "Se lee correctamente un archivo con 2 entrenadores de distinta cantidad de pokemones c/u.");
+
+    salon_destruir(salon);
     printf("\n");
 
 }
@@ -283,6 +315,8 @@ int main(){
             DadoArchivoCon1EntrenadorSinPokemon_AlLeerArchivo_SeDevuelveNull();
             DadoArchivoCon2EntrenadoresCon2PokemonCadaUno_AlLeerArchivo_SeCreaSalonCorrectamente();
             DadoArchivoConVariosEntrenadoresConAlgunosDeEllosSinPokemones_AlLeerArchivo_SeDevuelveNull();
+            DadoArchivoCon2EntrenadoresConDistintaCantidadDePokemonesCadaUno_AlLeerArchivo_SeCreaSalonCorrectamente();
+
             
 /*
         pa2m_nuevo_grupo("Pruebas de");
