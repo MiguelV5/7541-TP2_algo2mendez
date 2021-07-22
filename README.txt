@@ -1,6 +1,11 @@
 
 ▒▒▒▒▒▒▒▒▒▒▒▒  Consideraciones iniciales y estructuras utilizadas  ▒▒▒▒▒▒▒▒▒▒▒▒ 
 
+    Decidí realizar todas las pruebas en un mismo pruebas.c para
+    evitar modificar el makefile al probar cambios en archivos
+    distintos, y considero que queda más organizado tener todas
+    las pruebas en un solo lugar que tener que ir mirandolas 
+    por separado.
     Comenzaré por explicar las estructuras principales (salon_t,
     entrenador_t) e iré adentrando en decisiones tomadas
     para definirlas conforme sea necesario.

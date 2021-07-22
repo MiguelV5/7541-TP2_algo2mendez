@@ -23,6 +23,25 @@ entrenador_t* entrenador_crear(char** datos_entrenador);
 
 
 /**
+ * Devuelve true si el entrenador recibido tiene 0 pokemones almacenados en
+ * su equipo.
+ * Devuelve false si tiene al menos un pokemon.
+ * (Leer README.txt , sección Aclaraciones).
+*/
+bool entrenador_equipo_vacio(void* entrenador, void* hubo_equipo_vacio);
+
+
+/**
+ * Escribe todos los campos de un entrenador, y posteriormente
+ * todos los de su equipo pokemon en un archivo recibido
+ * (previamente abierto).
+ * Siempre devuelve false.
+ * (Leer README.txt, sección Aclaraciones).
+*/
+bool entrenador_escribir_en_archivo(void* entrenador, void* archivo_a_escribir);
+
+
+/**
  * Añade el pokemon con los datos dados al equipo del entrenador recibido.
  * Los datos vienen separados en strings en un vector
  * de punteros a los mismos.
@@ -30,7 +49,7 @@ entrenador_t* entrenador_crear(char** datos_entrenador);
  * {"Nombre" , "Nivel" , "Defensa" , "Fuerza" , "Inteligencia" , "Velocidad"} 
  * Devuelve 0 si pudo agregarlo o -1 en caso de error.
 */
-int entrenador_agregar_pokemon(entrenador_t* entrenador, char** datos_pokemon);
+int entrenador_agregar_pokemon_leido(entrenador_t* entrenador, char** datos_pokemon);
 
 
 
@@ -73,9 +92,9 @@ size_t entrenador_tamanio_equipo(entrenador_t* entrenador);
 
 /**
  * Devuelve la cantidad de victorias que posee actualmente el entrenador dado.
- * Devuelve 0 en caso de error.
+ * Devuelve -1 en caso de error.
 */
-//size_t entrenador_cantidad_victorias(entrenador_t* entrenador);
+int entrenador_cantidad_victorias(entrenador_t* entrenador);
 
 
 /**

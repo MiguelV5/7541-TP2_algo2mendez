@@ -1,9 +1,12 @@
 #include "entrenador.h"
 #include <string.h>
+#include <stdio.h>
 
 #define FALLO -1
 #define EXITO 0
 
+#define FORMATO_ESCRITURA_ENTRENADOR "%s;%i\n"
+#define FORMATO_ESCRITURA_POKEMON "%s;%i;%i;%i;%i;%i\n"
 
 struct _pokemon_t{
     char* nombre;
@@ -82,6 +85,52 @@ entrenador_t* entrenador_crear(char** datos_entrenador){
 
 
 
+bool entrenador_equipo_vacio(void* entrenador, void* hubo_equipo_vacio){
+
+    entrenador_t* _entrenador = entrenador;
+    bool* _hubo_equipo_vacio = hubo_equipo_vacio;
+    size_t tamanio_equipo = entrenador_tamanio_equipo(_entrenador);
+    if(tamanio_equipo==0){
+        (*_hubo_equipo_vacio) = true;
+        return true;
+    }
+    else{
+        return false;
+    }
+
+}
+
+
+/**
+ * Escribe todos los campos de un pokemon en un archivo recibido
+ * (previamente abierto).
+ * Siempre devuelve false.
+*/
+bool pokemon_escribir_en_archivo(void* pokemon, void* archivo_a_escribir){
+
+    FILE* archivo = archivo_a_escribir;
+    pokemon_t* _pokemon = pokemon;
+    
+    fprintf(archivo, FORMATO_ESCRITURA_POKEMON, _pokemon->nombre, _pokemon->nivel, _pokemon->defensa, _pokemon->fuerza, _pokemon->inteligencia, _pokemon->velocidad);
+
+    return false;
+
+}
+
+
+bool entrenador_escribir_en_archivo(void* entrenador, void* archivo_a_escribir){
+
+    FILE* archivo = archivo_a_escribir;
+    entrenador_t* _entrenador = entrenador;
+
+    fprintf(archivo, FORMATO_ESCRITURA_ENTRENADOR, _entrenador->nombre, _entrenador->victorias);
+    lista_con_cada_elemento(_entrenador->equipo, pokemon_escribir_en_archivo, archivo);
+
+    return false;
+
+}
+
+
 
 /**
  * Le asigna los datos pokemon a los campos de un pokemon previamente reservado en memoria.
@@ -99,7 +148,7 @@ void asignar_datos_pokemon(pokemon_t* pokemon, char** datos_pokemon){
 
 
 
-int entrenador_agregar_pokemon(entrenador_t* entrenador, char** datos_pokemon){
+int entrenador_agregar_pokemon_leido(entrenador_t* entrenador, char** datos_pokemon){
 
     if(!entrenador || !datos_pokemon){
         return FALLO;
@@ -173,11 +222,15 @@ size_t entrenador_tamanio_equipo(entrenador_t* entrenador){
 
 
 
-//size_t entrenador_cantidad_victorias(entrenador_t* entrenador){
+int entrenador_cantidad_victorias(entrenador_t* entrenador){
 
-    //return 0;
+    if(!entrenador){
+        return FALLO;
+    }
 
-//}
+    return entrenador->victorias;
+
+}
 
 
 

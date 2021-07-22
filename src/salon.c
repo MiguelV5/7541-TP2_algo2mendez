@@ -2,6 +2,9 @@
 #include "salon.h"
 #include "abb.h"
 #include "util.h"
+#include "hash.h"
+#include "comando.h"
+
 
 const char SEPARADOR_EN_LECTURA = ';';
 #define CANTIDAD_CAMPOS_ENTRENADOR 2
@@ -10,11 +13,32 @@ const char SEPARADOR_EN_LECTURA = ';';
 #define EXITO 0
 #define FALLO -1
 
+
 struct _salon_t{
     abb_t* abb_entrenadores;
+    size_t cantidad_entrenadores;
 };
 
 
+
+/**
+ * Verifica que todos los entrenadores leidos en un archivo (y almacenados en un salon)
+ * tengan al menos un pokemon en su equipo.
+ * Devuelve 0 si todos los entrenadores son válidos, -1 si encuentra al menos uno que no lo sea.
+*/
+int verificacion_entrenadores_validos(salon_t* salon){
+
+    bool hubo_equipo_vacio = false;
+    size_t cantidad_de_entrenadores_validos = abb_con_cada_elemento(salon->abb_entrenadores, ABB_RECORRER_INORDEN, entrenador_equipo_vacio, &hubo_equipo_vacio);
+
+    if((cantidad_de_entrenadores_validos == salon->cantidad_entrenadores) && (hubo_equipo_vacio==false)){
+        return EXITO;
+    }
+    else{
+        return FALLO;
+    }
+
+}
 
 
 
@@ -35,7 +59,8 @@ entrenador_t* almacenador_entrenadores(entrenador_t* entrenador_actual, entrenad
     }
 
     if((*es_primer_entrenador) == false){
-        resultado_almacenar = arbol_insertar(salon->abb_entrenadores, entrenador_previo);  
+        resultado_almacenar = arbol_insertar(salon->abb_entrenadores, entrenador_previo);
+        salon->cantidad_entrenadores++;  
     }
     else if((*es_primer_entrenador) == true){
         (*es_primer_entrenador) = false;
@@ -58,12 +83,13 @@ entrenador_t* almacenador_entrenadores(entrenador_t* entrenador_actual, entrenad
  * -Si no puede leer el archivo o hay un error, devuelve NULL.
  * -El cierre del archivo queda en disposicion de la función de donde se le llama.
  */
-salon_t* almacenador_salon(char* linea_leida, FILE* archivo_sal, salon_t* salon){
+salon_t* almacenador_salon(char* linea_leida, FILE* archivo_salon, salon_t* salon){
 
     salon->abb_entrenadores = arbol_crear(entrenador_comparar_nombres, entrenador_destruir);
     if(!salon->abb_entrenadores){
         return NULL;
     }
+    salon->cantidad_entrenadores = 0;
 
     entrenador_t* entrenador_aux = NULL;
     entrenador_t* entrenador_previo = NULL; //Cuando se cambie a un entrenador nuevo, con este se guardará el entrenador previo al salón.
@@ -86,40 +112,32 @@ salon_t* almacenador_salon(char* linea_leida, FILE* archivo_sal, salon_t* salon)
 
         if(cantidad_campos_separados == CANTIDAD_CAMPOS_ENTRENADOR){
 
-            if(es_primer_entrenador==false && (entrenador_tamanio_equipo(entrenador_previo) == 0)){
-                vtrfree(campos_leidos_separados);
-                salon_destruir(salon);
-                return NULL;
-            }
-
             entrenador_aux = almacenador_entrenadores(entrenador_aux, entrenador_previo, &es_primer_entrenador, campos_leidos_separados, salon);
             if(entrenador_aux == NULL){
                 vtrfree(campos_leidos_separados);
-                salon_destruir(salon);
                 return NULL;
             }
             
         }
         else if(cantidad_campos_separados == CANTIDAD_CAMPOS_POKEMON ){
 
-            resultado_de_inserciones = entrenador_agregar_pokemon(entrenador_aux, campos_leidos_separados);
+            resultado_de_inserciones = entrenador_agregar_pokemon_leido(entrenador_aux, campos_leidos_separados);
             if(resultado_de_inserciones == FALLO){
                 vtrfree(campos_leidos_separados);
-                salon_destruir(salon);
                 return NULL;
             }
 
         }
 
-        linea_leida = fgets_alloc(archivo_sal);
+        linea_leida = fgets_alloc(archivo_salon);
 
         if(linea_leida == NULL){
             resultado_de_inserciones = arbol_insertar(salon->abb_entrenadores, entrenador_aux);
             if(resultado_de_inserciones == FALLO){
                 vtrfree(campos_leidos_separados);
-                salon_destruir(salon);
                 return NULL;
             }
+            salon->cantidad_entrenadores++;
         }
 
         vtrfree(campos_leidos_separados);
@@ -161,6 +179,11 @@ salon_t* salon_leer_archivo(const char* nombre_archivo){
         fclosen(archivo_salon);
         return NULL;
     }
+    else if(verificacion_entrenadores_validos(salon)==FALLO){
+        salon_destruir(salon);
+        fclosen(archivo_salon);
+        return NULL;
+    }
 
     fclosen(archivo_salon);
 
@@ -171,9 +194,41 @@ salon_t* salon_leer_archivo(const char* nombre_archivo){
 
 
 
+
+/**
+ * Escribe un salon en un archivo de texto (previamente abierto).
+ * Devuelve la cantidad de entrenadores escritos.
+ */
+int salon_a_texto(salon_t* salon, FILE* archivo_nuevo){
+
+    int cantidad_entrenadores_escritos = (int)abb_con_cada_elemento(salon->abb_entrenadores, ABB_RECORRER_INORDEN, entrenador_escribir_en_archivo, archivo_nuevo);
+
+    return cantidad_entrenadores_escritos;
+
+}
+
+
+
+
+
 int salon_guardar_archivo(salon_t* salon, const char* nombre_archivo){
 
-    return -1;
+    if(!salon || !nombre_archivo){
+        return FALLO;
+    }
+
+    FILE* archivo_nuevo = fopen(nombre_archivo, "w");
+    if(archivo_nuevo == NULL){
+        return FALLO;
+    }
+
+    int cantidad_entrenadores_escritos = 0;
+
+    cantidad_entrenadores_escritos = salon_a_texto(salon, archivo_nuevo);
+
+    fclosen(archivo_nuevo);
+
+    return cantidad_entrenadores_escritos;
 
 }
 
@@ -182,7 +237,21 @@ int salon_guardar_archivo(salon_t* salon, const char* nombre_archivo){
 
 salon_t* salon_agregar_entrenador(salon_t* salon, entrenador_t* entrenador){
 
-    return NULL;
+    
+    if((!salon) || (!entrenador)){
+        return NULL;
+    }
+    else if(entrenador_tamanio_equipo(entrenador)==0){
+        return NULL;
+    }
+
+    int resultado_insercion = arbol_insertar(salon->abb_entrenadores, entrenador);
+    if(resultado_insercion == FALLO){
+        return NULL;
+    }
+    salon->cantidad_entrenadores++;
+    
+    return salon;
 
 }
 
@@ -192,7 +261,34 @@ salon_t* salon_agregar_entrenador(salon_t* salon, entrenador_t* entrenador){
 
 lista_t* salon_filtrar_entrenadores(salon_t* salon , bool (*f)(entrenador_t*, void*), void* extra){
 
-    return NULL;
+    if(!salon || !f){
+        return NULL;
+    }
+
+    lista_t* lista_filtrados = lista_crear(NULL);
+    if(!lista_filtrados){
+        return NULL;
+    }
+
+    entrenador_t* vector_entrenadores[salon->cantidad_entrenadores];
+    arbol_recorrido_inorden(salon->abb_entrenadores, (void**)vector_entrenadores, salon->cantidad_entrenadores);
+
+    size_t i = 0;
+    int resultado_insercion = EXITO;
+    while((i < salon->cantidad_entrenadores) && (resultado_insercion != FALLO)){
+
+        if( f(vector_entrenadores[i], extra) == true ){
+            resultado_insercion = lista_insertar(lista_filtrados, vector_entrenadores[i]);
+        }
+        i++;
+
+    }
+    if(resultado_insercion==FALLO){
+        lista_destruir(lista_filtrados);
+        return NULL;
+    }
+
+    return lista_filtrados;
 
 }
 

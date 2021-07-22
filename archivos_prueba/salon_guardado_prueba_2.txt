@@ -1,0 +1,6 @@
+Leo;20
+Charizard;1;20;30;40;50
+Lucas;30
+Bulbasaur;3;50;40;30;20
+entrenador1;33
+pokemon1;1;2;3;4;5
