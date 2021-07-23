@@ -1,5 +1,5 @@
-CFLAGS=-g -O2 -std=c99 -Wall -Wconversion -Wtype-limits -Werror -I src
-CFLAGS_SERVER=-g -O2 -Wall -Wconversion -Wtype-limits -Werror -I src
+CFLAGS=-g -O0 -std=c99 -Wall -Wconversion -Wtype-limits -Werror -I src
+CFLAGS_SERVER=-g -O2 -Wall -Wconversion -Wtype-limits -I src
 VFLAGS=--leak-check=full --track-origins=yes --show-reachable=yes --error-exitcode=2
 
 ARCHIVO_SALON=salones/salon_estandar.txt

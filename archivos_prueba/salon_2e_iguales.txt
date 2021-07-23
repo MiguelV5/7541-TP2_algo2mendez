@@ -1,0 +1,9 @@
+Miguel;15
+pokemon1;1;2;3;4;5
+pokemon2;1;2;3;4;5
+pokemon3;1;2;3;4;5
+Fernando;20
+pokemon1;1;2;3;4;5
+pokemon2;5;4;3;2;1
+Miguel;30
+pokemon1;5;4;3;2;1

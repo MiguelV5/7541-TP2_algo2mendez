@@ -11,6 +11,7 @@
 #define SALON_2E_2P "archivos_prueba/salon_2e_2p.txt"
 #define SALON_6E_ALGUNOS_SIN_P "archivos_prueba/salon_6e_con_algunos_sin_p.txt"
 #define SALON_2E_CON_P_EN_DISTINTA_CANTIDAD "archivos_prueba/salon_2e_con_p_en_distinta_cantidad.txt"
+#define SALON_2E_IGUALES "archivos_prueba/salon_2e_iguales.txt"
 
 #define ARCHIVO_DE_PRUEBA_PARA_ESCRIBIR_1 "archivos_prueba/salon_guardado_prueba_1.txt"
 #define ARCHIVO_DE_PRUEBA_PARA_ESCRIBIR_2 "archivos_prueba/salon_guardado_prueba_2.txt"
@@ -257,6 +258,16 @@ void DadoArchivoCon2EntrenadoresConDistintaCantidadDePokemonesCadaUno_AlLeerArch
 
 
 
+void DadoArchivoConDosEntrenadoresRepetidos_SiSeIntentaLeer_SeDevuelveNull(){
+
+    pa2m_afirmar( salon_leer_archivo(SALON_2E_IGUALES)==NULL , "No se puede leer archivo que contenga dos entrenadores de nombre idéntico.");
+
+    printf("\n");
+
+}
+
+
+
 //////////// SALON_AGREGAR_ENTRENADOR ////////////
 
 void DadoEntrenadorSinPokemonOParametrosInexistentes_SiSeIntentaAgregarEntrenador_SeDevuelveNull(){
@@ -381,7 +392,6 @@ void DadosSalonesValidosEnGeneral_SiSeGuardanEnArchivos_SeGuardanTodosCorrectame
 
 //////////// SALON_FILTRAR_ENTRENADORES ////////////
 
-
 /**
  * Función auxiliar de prueba.
  * Devuelve true si el entrenador recibido tiene victorias mayores o iguales a las mínimas recibidas.
@@ -494,6 +504,82 @@ void DadaFuncionDeFiltroQueSeCumpleParaAlgunosEntrenadores_AlFiltrar_SeDevuelveL
 
 
 
+//////////// SALON_EJECUTAR_COMANDO ////////////
+
+void DadosParametrosInvalidos_SiSeIntentaEjecutarComando_SeDevuelveNull(){
+
+
+
+    printf("\n");
+
+}
+
+
+/*
+
+void Dado_Si_Se(){
+
+
+
+    printf("\n");
+
+}
+
+
+
+void Dado_Si_Se(){
+
+
+
+    printf("\n");
+
+}
+
+
+
+void Dado_Si_Se(){
+
+
+
+    printf("\n");
+
+}
+
+
+
+void Dado_Si_Se(){
+
+
+
+    printf("\n");
+
+}
+
+
+
+void Dado_Si_Se(){
+
+
+
+    printf("\n");
+
+}
+
+
+
+void Dado_Si_Se(){
+
+
+
+    printf("\n");
+
+}
+
+
+*/
+
+
+
 /*
 
 void Dado_Si_Se(){
@@ -531,20 +617,6 @@ int main(){
             DadoEntrenadorODatosPokemonInexistentes_SiSePideAgregarPokemon_SeDevuelveFallo();
             DadoEntrenadorInexistenteOSinPokemon_SiSePideTamanioDeEquipo_SeDevuelveCero();
             DadosParametrosValidos_AlAgregarPokemones_SeAgreganAlEquipoCorrectamente();
-
-/*
-    //===============================================================================//
-    pa2m_nuevo_grupo("//  PRUEBAS DE COMANDOS  //");
-        pa2m_nuevo_grupo("Pruebas de");
-            Dado_Si_Se();
-
-        pa2m_nuevo_grupo("Pruebas de");
-            Dado_Si_Se();
-
-        pa2m_nuevo_grupo("Pruebas de");
-            Dado_Si_Se();
-
-*/
   
     //===============================================================================//
     pa2m_nuevo_grupo("//  PRUEBAS DE SALON  //");
@@ -555,6 +627,7 @@ int main(){
             DadoArchivoCon2EntrenadoresCon2PokemonCadaUno_AlLeerArchivo_SeCreaSalonCorrectamente();
             DadoArchivoConVariosEntrenadoresConAlgunosDeEllosSinPokemones_AlLeerArchivo_SeDevuelveNull();
             DadoArchivoCon2EntrenadoresConDistintaCantidadDePokemonesCadaUno_AlLeerArchivo_SeCreaSalonCorrectamente();
+            DadoArchivoConDosEntrenadoresRepetidos_SiSeIntentaLeer_SeDevuelveNull();
 
         pa2m_nuevo_grupo("Pruebas de agregar entrenador");
             DadoEntrenadorSinPokemonOParametrosInexistentes_SiSeIntentaAgregarEntrenador_SeDevuelveNull();
@@ -571,6 +644,16 @@ int main(){
             DadaFuncionDeFiltroQueNoSeCumpleParaNingunEntrenador_AlFiltrar_SeDevuelveUnaListaVacia();
             DadaFuncionDeFiltroQueSeCumpleParaAlgunosEntrenadores_AlFiltrar_SeDevuelveListaConLosFiltrados();
 
+        pa2m_nuevo_grupo("Pruebas de ejecución de comandos");
+            DadosParametrosInvalidos_SiSeIntentaEjecutarComando_SeDevuelveNull();
+            /*
+            Dado_Si_Se();
+            Dado_Si_Se();
+            Dado_Si_Se();
+            Dado_Si_Se();
+            Dado_Si_Se();
+            Dado_Si_Se();
+            */
 
 /*
         pa2m_nuevo_grupo("Pruebas de");
@@ -579,9 +662,6 @@ int main(){
         pa2m_nuevo_grupo("Pruebas de");
             Dado_Si_Se();
 */
-
-
-            
 
     return pa2m_mostrar_reporte();
 }

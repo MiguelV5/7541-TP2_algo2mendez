@@ -32,6 +32,13 @@ bool entrenador_equipo_vacio(void* entrenador, void* hubo_equipo_vacio);
 
 
 /**
+ * Devuelve true si los entrenadores recibidos tienen el mismo nombre,
+ * false en caso contrario.
+*/
+bool entrenador_verificar_identicos(entrenador_t* entrenador_1, entrenador_t* entrenador_2);
+
+
+/**
  * Escribe todos los campos de un entrenador, y posteriormente
  * todos los de su equipo pokemon en un archivo recibido
  * (previamente abierto).

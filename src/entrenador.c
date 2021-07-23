@@ -101,6 +101,16 @@ bool entrenador_equipo_vacio(void* entrenador, void* hubo_equipo_vacio){
 }
 
 
+
+
+bool entrenador_verificar_identicos(entrenador_t* entrenador_1, entrenador_t* entrenador_2){
+
+    return (strcmp(entrenador_1->nombre, entrenador_2->nombre) == 0);
+
+}
+
+
+
 /**
  * Escribe todos los campos de un pokemon en un archivo recibido
  * (previamente abierto).
