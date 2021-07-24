@@ -5,6 +5,7 @@
 #define FALLO -1
 #define EXITO 0
 
+#define SEPARADOR_CONCATENACION ","
 #define FORMATO_ESCRITURA_ENTRENADOR "%s;%i\n"
 #define FORMATO_ESCRITURA_POKEMON "%s;%i;%i;%i;%i;%i\n"
 
@@ -216,6 +217,22 @@ entrenador_t* entrenador_quitar_pokemon(entrenador_t* entrenador, char* nombre_p
 
 
 
+char* entrenador_obtener_nombre(entrenador_t* entrenador){
+
+    if(!entrenador){
+        return NULL;
+    }
+
+    char* nombre_duplicado = malloc((strlen(entrenador->nombre) + 1)*sizeof(char));
+    if(!nombre_duplicado){
+        return NULL;
+    }
+    strcpy(nombre_duplicado, entrenador->nombre);
+
+    return nombre_duplicado;
+
+}
+
 
 
 size_t entrenador_tamanio_equipo(entrenador_t* entrenador){
@@ -243,15 +260,70 @@ int entrenador_cantidad_victorias(entrenador_t* entrenador){
 }
 
 
+bool entrenador_tiene_victorias_minimas(entrenador_t* entrenador, void* victorias_minimas){
+
+    if(!entrenador || !victorias_minimas){
+        return false;
+    }
+
+    int* victorias_min = victorias_minimas;
+
+    return (entrenador->victorias >= (*victorias_min));
+
+}
 
 
-/**
-*/
-//entrenador_t* entrenador_(){
+bool entrenador_tiene_pokemon(entrenador_t* entrenador, void* nombre_pokemon){
 
-    //return ;
+    if(!entrenador || !nombre_pokemon){
+        return false;
+    }
 
-//}
+    char* _nombre_pokemon = nombre_pokemon;
+    bool pokemon_fue_encontrado = false;
+
+    lista_iterador_t* iter_pokemones = lista_iterador_crear(entrenador->equipo);
+    while(lista_iterador_tiene_siguiente(iter_pokemones) && (pokemon_fue_encontrado==false)){
+
+        pokemon_t* pokemon_actual = lista_iterador_elemento_actual(iter_pokemones);
+
+        if(strcmp(pokemon_actual->nombre , _nombre_pokemon) == 0){
+            pokemon_fue_encontrado = true;
+        }
+
+        lista_iterador_avanzar(iter_pokemones);
+
+    }
+    lista_iterador_destruir(iter_pokemones);
+
+    return pokemon_fue_encontrado;
+
+}
+
+
+
+char* entrenador_obtener_info_concatenada(entrenador_t* entrenador){
+
+    size_t tamanio_nombre = strlen(entrenador->nombre); 
+    int tamanio_requerido_para_conversion = snprintf(NULL, 0 , "%d", entrenador->victorias);
+    
+    size_t tamanio_total_reserva = tamanio_nombre + (size_t)tamanio_requerido_para_conversion + 2 ; //2 adicionales para la ',' y para el '\0'
+
+    char* info_concatenada = malloc(tamanio_total_reserva*sizeof(char));
+    if(!info_concatenada){
+        return NULL;
+    }
+    
+    char victorias_en_string[tamanio_requerido_para_conversion];
+    snprintf(victorias_en_string, (size_t)tamanio_requerido_para_conversion + 1, "%d", entrenador->victorias);
+
+    strcpy(info_concatenada, entrenador->nombre);
+    strcat(info_concatenada, SEPARADOR_CONCATENACION);
+    strcat(info_concatenada, victorias_en_string);
+
+    return info_concatenada;
+
+}
 
 
 

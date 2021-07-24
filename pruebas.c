@@ -1,6 +1,7 @@
 #include "pa2mm.h"
 #include "src/salon.h"
 #include "src/util.h"
+#include <string.h>
 
 
 #define FALLO -1
@@ -12,10 +13,15 @@
 #define SALON_6E_ALGUNOS_SIN_P "archivos_prueba/salon_6e_con_algunos_sin_p.txt"
 #define SALON_2E_CON_P_EN_DISTINTA_CANTIDAD "archivos_prueba/salon_2e_con_p_en_distinta_cantidad.txt"
 #define SALON_2E_IGUALES "archivos_prueba/salon_2e_iguales.txt"
+#define SALON_5E_INTEGRO_PARA_COMANDOS "archivos_prueba/salon_5e_integro_para_comandos.txt"
 
 #define ARCHIVO_DE_PRUEBA_PARA_ESCRIBIR_1 "archivos_prueba/salon_guardado_prueba_1.txt"
 #define ARCHIVO_DE_PRUEBA_PARA_ESCRIBIR_2 "archivos_prueba/salon_guardado_prueba_2.txt"
 
+// COM_... == COMANDO_... //
+#define COM_ENTRENADORES "ENTRENADORES"
+#define COM_REGLAS "REGLAS"
+#define COM_GUARDAR "GUARDAR:archivos_prueba/salon_guardado_con_comando_prueba.txt"
 
 
 //////////// DESTRUCCION DE ELEMENTOS EN LISTA ////////////
@@ -392,29 +398,14 @@ void DadosSalonesValidosEnGeneral_SiSeGuardanEnArchivos_SeGuardanTodosCorrectame
 
 //////////// SALON_FILTRAR_ENTRENADORES ////////////
 
-/**
- * Función auxiliar de prueba.
- * Devuelve true si el entrenador recibido tiene victorias mayores o iguales a las mínimas recibidas.
- * Devuelve false en caso contrario.
-*/
-bool filtrar_por_victorias_minimas(entrenador_t* entrenador, void* victorias_minimas){
-
-    int* victorias_min = victorias_minimas;
-
-    return (entrenador_cantidad_victorias(entrenador) >= (*victorias_min));
-
-}
-
-
-
 void DadosParametrosInvalidos_SiSeIntentaFiltrar_SeDevuelveNull(){
 
     salon_t* salon = salon_leer_archivo(SALON_1E_1P);
     int victorias_min_prueba = 10;
 
-    pa2m_afirmar( salon_filtrar_entrenadores(NULL, filtrar_por_victorias_minimas, &victorias_min_prueba)==NULL , "No se puede filtrar entrenadores de un salon inexistente.");
+    pa2m_afirmar( salon_filtrar_entrenadores(NULL, entrenador_tiene_victorias_minimas, &victorias_min_prueba)==NULL , "No se puede filtrar entrenadores de un salon inexistente.");
     pa2m_afirmar( salon_filtrar_entrenadores(salon, NULL, &victorias_min_prueba)==NULL , "No se puede filtrar entrenadores con una función de filtro inexistente.");
-    //pa2m_afirmar( salon_filtrar_entrenadores(salon, filtrar_por_victorias_minimas, NULL)==NULL , "No se puede filtrar entrenadores con el parámetro extra inexistente.");
+    //pa2m_afirmar( salon_filtrar_entrenadores(salon, entrenador_tiene_victorias_minimas, NULL)==NULL , "No se puede filtrar entrenadores con el parámetro extra inexistente.");
 
     salon_destruir(salon);
     printf("\n");
@@ -428,7 +419,7 @@ void DadaFuncionDeFiltroQueSeCumpleParaTodoEntrenador_AlFiltrar_SeDevuelveListaC
     salon_t* salon = salon_leer_archivo(SALON_2E_CON_P_EN_DISTINTA_CANTIDAD);
     int victorias_min_prueba = 0; //Cualquier entrenador va a tener mínimo cero victorias, se cumple siempre.
 
-    lista_t* lista_filtrados = salon_filtrar_entrenadores(salon, filtrar_por_victorias_minimas, &victorias_min_prueba);
+    lista_t* lista_filtrados = salon_filtrar_entrenadores(salon, entrenador_tiene_victorias_minimas, &victorias_min_prueba);
     entrenador_t* entrenador_1 = lista_elemento_en_posicion(lista_filtrados, 0);
     entrenador_t* entrenador_2 = lista_elemento_en_posicion(lista_filtrados, 1);
     //Deberían estar en ese orden en la lista (en el archivo 2P_CON_P... hay dos entrenadores. Uno de ellos se llama "entrenador1" y el otro "entrenador2". "entrenador1" es menor alfabeticamente que "entrenador2").
@@ -454,7 +445,7 @@ void DadaFuncionDeFiltroQueNoSeCumpleParaNingunEntrenador_AlFiltrar_SeDevuelveUn
     salon_t* salon = salon_leer_archivo(SALON_2E_CON_P_EN_DISTINTA_CANTIDAD);
     int victorias_min_prueba = 9999; //Ningun entrenador en el archivo tiene tal numero de victorias mínimas.
 
-    lista_t* lista_filtrados = salon_filtrar_entrenadores(salon, filtrar_por_victorias_minimas, &victorias_min_prueba);
+    lista_t* lista_filtrados = salon_filtrar_entrenadores(salon, entrenador_tiene_victorias_minimas, &victorias_min_prueba);
 
     pa2m_afirmar(lista_filtrados!=NULL , "Si la función de filtro no se cumple para ningún entrenador, se devuelve una lista no NULL (no hubo errores).");
     pa2m_afirmar(lista_vacia(lista_filtrados)==true , "La lista devuelta está vacía.");
@@ -481,7 +472,7 @@ void DadaFuncionDeFiltroQueSeCumpleParaAlgunosEntrenadores_AlFiltrar_SeDevuelveL
     entrenador_agregar_pokemon_leido(entrenador_extra, datos_pokemon_prueba_2);
     salon = salon_agregar_entrenador(salon, entrenador_extra);
 
-    lista_t* lista_filtrados = salon_filtrar_entrenadores(salon, filtrar_por_victorias_minimas, &victorias_min_prueba);
+    lista_t* lista_filtrados = salon_filtrar_entrenadores(salon, entrenador_tiene_victorias_minimas, &victorias_min_prueba);
     entrenador_t* entrenador_Berni = lista_elemento_en_posicion(lista_filtrados, 0);
     entrenador_t* entrenador_1 = lista_elemento_en_posicion(lista_filtrados, 1);
     //El orden esperado es: "entrenador1" en la posición 1 de la tabla y "Berni" en la posición 0 ya que es menor alfabéticamente.
@@ -504,18 +495,296 @@ void DadaFuncionDeFiltroQueSeCumpleParaAlgunosEntrenadores_AlFiltrar_SeDevuelveL
 
 
 
+
+//===============================================================================//
+
 //////////// SALON_EJECUTAR_COMANDO ////////////
+
+//////////// COMANDOS EN GENERAL ////////////
 
 void DadosParametrosInvalidos_SiSeIntentaEjecutarComando_SeDevuelveNull(){
 
+    salon_t* salon = salon_leer_archivo(SALON_1E_1P);
 
+    pa2m_afirmar( salon_ejecutar_comando(NULL, COM_ENTRENADORES)==NULL , "No se puede ejecutar comando de un salón inexistente.");
+    pa2m_afirmar( salon_ejecutar_comando(salon, NULL)==NULL , "No se puede ejecutar un comando de nombre inexistente.");
+
+    salon_destruir(salon);
+
+}
+
+
+
+void DadoComandoNoConocido_SiSeIntentaEjecutarComando_SeDevuelveNull(){
+
+    salon_t* salon = salon_leer_archivo(SALON_1E_1P);
+
+    pa2m_afirmar( salon_ejecutar_comando(salon, "CUALQUIERCOSA:hola,quetal")==NULL , "No se puede ejecutar un comando no conocido.");
+
+    salon_destruir(salon);
+
+}
+
+
+
+void DadoComandoConNombreConocidoPeroDeParametrosInvalidos_SiSeIntentaEjecutarComando_SeDevuelveNull(){
+
+    salon_t* salon = salon_leer_archivo(SALON_1E_1P);
+
+    pa2m_afirmar( salon_ejecutar_comando(salon, "ENTRENADORES:parametro_erroneo,23098,hola")==NULL , "No se puede ejecutar un comando de nombre conocido pero de parametros erroneos.");
+
+    salon_destruir(salon);
 
     printf("\n");
 
 }
 
 
+
+//////////// COMANDO ENTRENADOR ////////////
+
+void DadoSalonCon1EntrenadorCon1Pokemon_AlPedirListadoDeEntrenadores_StringDeOutputEsCorrecto(){
+
+    salon_t* salon = salon_leer_archivo(SALON_1E_1P);
+    char* output = salon_ejecutar_comando(salon, COM_ENTRENADORES);
+    char* resultado_esperado = "entrenador1,33\n";
+
+    pa2m_afirmar( output!=NULL , "Comando ENTRENADORES devuelve un string no NULL (de un salon con un solo entrenador).");
+    pa2m_afirmar( strcmp(output, resultado_esperado)==0 , "El string resultante es el correcto.");
+
+    free(output);
+    salon_destruir(salon);
+
+}
+
+
+void DadoSalonConEntrenadores_AlPedirListadoDeEntrenadores_StringDeOutputLosContieneOrdenadamente(){
+
+    salon_t* salon = salon_leer_archivo(SALON_5E_INTEGRO_PARA_COMANDOS);
+    char* output = salon_ejecutar_comando(salon, COM_ENTRENADORES);
+    char* resultado_esperado = "Francisco,50\nLuis,40\nMauro,10\nMiguel,20\nSebastian,30\n";
+
+    pa2m_afirmar( output!=NULL , "Comando ENTRENADORES devuelve un string no NULL (de un salon con varios entrenadores).");
+    pa2m_afirmar( strcmp(output, resultado_esperado)==0 , "El string resultante es el correcto (contiene a todos los entrenadores ordenados).");
+
+    free(output);
+    salon_destruir(salon);
+    printf("\n");
+
+}
+
+
+void DadoNumeroDeVictoriasInalcanzable_AlPedirListadoDeEntrenadoresDeMinimoDichasVictorias_SeDevuelveUnStringVacio(){
+
+    salon_t* salon = salon_leer_archivo(SALON_5E_INTEGRO_PARA_COMANDOS);
+    char* output = salon_ejecutar_comando(salon, "ENTRENADORES:victorias,9999");
+    char* resultado_esperado = "";
+
+    pa2m_afirmar( output!=NULL , "Comando ENTRENADORES:victorias,9999 devuelve un string no NULL (de un salon con varios entrenadores).");
+    pa2m_afirmar( strcmp(output, resultado_esperado)==0 , "El string resultante es vacío.");
+
+    free(output);
+    salon_destruir(salon);
+
+}
+
+
+void DadoNumeroDeVictoriasAccequible_AlPedirListadoDeEntrenadoresDeMinimoDichasVictorias_StringDeOutputEsElEsperado(){
+
+    salon_t* salon = salon_leer_archivo(SALON_5E_INTEGRO_PARA_COMANDOS);
+    char* output = salon_ejecutar_comando(salon, "ENTRENADORES:victorias,30");
+    char* resultado_esperado = "Francisco\nLuis\nSebastian\n";
+
+    pa2m_afirmar( output!=NULL , "Comando ENTRENADORES:victorias,30 devuelve un string no NULL (de un salon con varios entrenadores).");
+    pa2m_afirmar( strcmp(output, resultado_esperado)==0 , "El string resultante es correcto (hay 3 entrenadores).");
+
+    free(output);
+    salon_destruir(salon);
+
+}
+
+
+void DadasCeroVictorias_AlPedirListadoDeEntrenadoresDeMinimoDichasVictorias_StringDeOutputTieneATodosLosEntrenadores(){
+
+    salon_t* salon = salon_leer_archivo(SALON_5E_INTEGRO_PARA_COMANDOS);
+    char* output = salon_ejecutar_comando(salon, "ENTRENADORES:victorias,0");
+    char* resultado_esperado = "Francisco\nLuis\nMauro\nMiguel\nSebastian\n";
+
+    pa2m_afirmar( output!=NULL , "Comando ENTRENADORES:victorias,0 devuelve un string no NULL (de un salon con varios entrenadores).");
+    pa2m_afirmar( strcmp(output, resultado_esperado)==0 , "El string resultante es correcto (contiene a todos los entrenadores).");
+
+    free(output);
+    salon_destruir(salon);
+
+    printf("\n");
+
+}
+
+
+void DadoSalonConEntrenadoresQueNoTienenLucario_AlPedirListadoDeLosQueTenganLucario_StringDeOutputEsVacio(){
+
+    salon_t* salon = salon_leer_archivo(SALON_5E_INTEGRO_PARA_COMANDOS);
+    char* output = salon_ejecutar_comando(salon, "ENTRENADORES:pokemon,Lucario");
+    char* resultado_esperado = "";
+
+    pa2m_afirmar( output!=NULL , "Comando ENTRENADORES:pokemon,Lucario devuelve un string no NULL (de un salon con varios entrenadores).");
+    pa2m_afirmar( strcmp(output, resultado_esperado)==0 , "El string resultante es vacío.");
+
+    free(output);
+    salon_destruir(salon);
+
+}
+
+
+void DadoSalonConUnEntrenadorQueTieneCharizard_AlPedirListadoDeLosQueTenganCharizard_StringDeOutputTieneSoloEseEntrenador(){
+
+    salon_t* salon = salon_leer_archivo(SALON_5E_INTEGRO_PARA_COMANDOS);
+    char* output = salon_ejecutar_comando(salon, "ENTRENADORES:pokemon,Charizard");
+    char* resultado_esperado = "Miguel\n";
+
+    pa2m_afirmar( output!=NULL , "Comando ENTRENADORES:pokemon,Charizard devuelve un string no NULL (de un salon con varios entrenadores).");
+    pa2m_afirmar( strcmp(output, resultado_esperado)==0 , "El string resultante es correcto (contiene un entrenador).");
+
+    free(output);
+    salon_destruir(salon);
+
+}
+
+
+void DadoSalonConUnEntrenadorQueTieneDeoxys_AlPedirListadoDeLosQueTenganDeoxys_StringDeOutputTieneSoloEseEntrenador(){
+
+    salon_t* salon = salon_leer_archivo(SALON_5E_INTEGRO_PARA_COMANDOS);
+    char* output = salon_ejecutar_comando(salon, "ENTRENADORES:pokemon,Deoxys");
+    char* resultado_esperado = "Sebastian\n";
+
+    pa2m_afirmar( output!=NULL , "Comando ENTRENADORES:pokemon,Deoxys devuelve un string no NULL (de un salon con varios entrenadores).");
+    pa2m_afirmar( strcmp(output, resultado_esperado)==0 , "El string resultante es correcto (contiene un entrenador).");
+
+    free(output);
+    salon_destruir(salon);
+
+}
+
+
+void DadoSalonConTresEntrenadoresQueTienenBulbasaur_AlPedirListadoDeLosQueTenganBulbasaur_StringDeOutputTieneALosTresEntrenadoresEnOrden(){
+
+    salon_t* salon = salon_leer_archivo(SALON_5E_INTEGRO_PARA_COMANDOS);
+    char* output = salon_ejecutar_comando(salon, "ENTRENADORES:pokemon,Bulbasaur");
+    char* resultado_esperado = "Francisco\nLuis\nMiguel\n";
+
+    pa2m_afirmar( output!=NULL , "Comando ENTRENADORES:pokemon,Bulbasaur devuelve un string no NULL (de un salon con varios entrenadores).");
+    pa2m_afirmar( strcmp(output, resultado_esperado)==0 , "El string resultante es correcto (contiene 3 entrenadores en orden).");
+
+    free(output);
+    salon_destruir(salon);
+
+    printf("\n");
+
+}
+
+
+//////////// COMANDO EQUIPO ////////////
+
+void DadoSalonConVariosEntrenadores_AlPedirEquipoDeEntrenadorQueNoEstaEnElSalon_SeDevuelveNull(){
+
+    salon_t* salon = salon_leer_archivo(SALON_5E_INTEGRO_PARA_COMANDOS);
+    char* output = salon_ejecutar_comando(salon, "EQUIPO:Patricio");
+
+    pa2m_afirmar( output==NULL , "Comando EQUIPO de un entrenador que no está en un salon devuelve NULL.");
+    salon_destruir(salon);
+
+}
+
+
+void DadoSalonConVariosEntrenadores_AlPedirEquipoDeEntrenadoresQueEstanEnElSalon_StringsDeOutputTienenLosEquiposEnOrdenCorrectamente(){
+
+    salon_t* salon = salon_leer_archivo(SALON_5E_INTEGRO_PARA_COMANDOS);
+    char* output_1 = salon_ejecutar_comando(salon, "EQUIPO:Mauro");
+    char* output_2 = salon_ejecutar_comando(salon, "EQUIPO:Sebastian");
+    char* output_3 = salon_ejecutar_comando(salon, "EQUIPO:Miguel");
+    char* resultado_esperado_1 = "Pikachu,50,40,30,20,10\nRayquaza,99,80,80,80,80\n";
+    char* resultado_esperado_2 = "Deoxys,50,20,30,40,50\n";
+    char* resultado_esperado_3 = "Bulbasaur,50,40,40,40,40\nCharizard,50,50,50,50,50\n";
+
+    pa2m_afirmar( strcmp(output_1,resultado_esperado_1)==0 , "Comando EQUIPO de un entrenador que está en un salon devuelve al equipo correcto en orden.");
+    pa2m_afirmar( strcmp(output_2,resultado_esperado_2)==0 , "Comando EQUIPO de otro entrenador tambien devuelve al equipo correcto en orden.");
+    pa2m_afirmar( strcmp(output_3,resultado_esperado_3)==0 , "Comando EQUIPO de otro entrenador tambien devuelve al equipo correcto en orden.");
+
+    free(output_1);
+    free(output_2);
+    free(output_3);
+    salon_destruir(salon);
+
+    printf("\n");
+
+}
+
+
+
+//////////// COMANDO REGLAS ////////////
+
+void DadoSalon_AlPedirReglas_StringDeOutputTieneTodasLasReglasCorrectamente(){
+
+    salon_t* salon = salon_leer_archivo(SALON_5E_INTEGRO_PARA_COMANDOS);
+    char* output = salon_ejecutar_comando(salon, COM_REGLAS);
+    char* resultado_esperado = "COMBATE CLASICO,Coeficiente de batalla: 0.8*nivel + fuerza + 2*velocidad\nCOMBATE MODERNO,Coeficiente de batalla: 0.5*nivel + 0.9*defensa + 3*inteligencia\nCOMBATE ACORAZADO,Coeficiente de batalla: (0.75*nivel + defensa)/velocidad\nCOMBATE FISICO,Coeficiente de batalla: (0.25*nivel + 0.8*fuerza - 0.1*inteligencia)*velocidad\nCOMBATE ELEGANTE,Coeficiente de batalla: (0.6*nivel + 0.7*velocidad)*inteligencia/defensa\n";
+
+    pa2m_afirmar( strcmp(output, resultado_esperado)==0 , "Comando REGLAS devuelve todas las reglas de batalla correctamente.")
+
+    free(output);
+    salon_destruir(salon);
+    printf("\n");
+
+}
+
+
+//////////// COMANDO COMPARAR ////////////
 /*
+void Dado_Si_Se(){
+
+
+
+}
+
+
+//void Dado_Si_Se(){
+
+
+
+    printf("\n");
+
+}
+
+
+
+
+//////////// COMANDO AGREGAR_POKEMON ////////////
+
+void Dado_Si_Se(){
+
+
+
+}
+
+
+//void Dado_Si_Se(){
+
+
+
+    printf("\n");
+
+}
+
+
+
+//////////// COMANDO QUITAR_POKEMON ////////////
+
+void Dado_Si_Se(){
+
+
+
+}
+
 
 void Dado_Si_Se(){
 
@@ -527,56 +796,34 @@ void Dado_Si_Se(){
 
 
 
+
+//////////// COMANDO GUARDAR ////////////
+
 void Dado_Si_Se(){
+
+
+
+}
+
+
+//void Dado_Si_Se(){
 
 
 
     printf("\n");
 
 }
-
-
-
-void Dado_Si_Se(){
-
-
-
-    printf("\n");
-
-}
-
-
-
-void Dado_Si_Se(){
-
-
-
-    printf("\n");
-
-}
-
-
-
-void Dado_Si_Se(){
-
-
-
-    printf("\n");
-
-}
-
-
-
-void Dado_Si_Se(){
-
-
-
-    printf("\n");
-
-}
-
-
 */
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -608,19 +855,24 @@ int main(){
             DadaListaConDestructor_AlBorrarElementos_SeBorranCorrectamente();
 
     //===============================================================================//
+
     pa2m_nuevo_grupo("//  PRUEBAS DE ENTRENADOR  //");
         pa2m_nuevo_grupo("Pruebas de creación de entrenador");
+
             DadosDatosInexistentes_SiSePideCrearEntrenador_SeDevuelveNull();
             DadosDatos_AlCrearEntrenador_SeCreaEntrenadorCorrectamente();
         
         pa2m_nuevo_grupo("Pruebas de agregar pokemon y tamaño de equipo");
+
             DadoEntrenadorODatosPokemonInexistentes_SiSePideAgregarPokemon_SeDevuelveFallo();
             DadoEntrenadorInexistenteOSinPokemon_SiSePideTamanioDeEquipo_SeDevuelveCero();
             DadosParametrosValidos_AlAgregarPokemones_SeAgreganAlEquipoCorrectamente();
   
     //===============================================================================//
+
     pa2m_nuevo_grupo("//  PRUEBAS DE SALON  //");
         pa2m_nuevo_grupo("Pruebas de lectura de archivos");
+
             DadoNombreDeArchivoInexistente_SiSePideLeerArchivo_SeDevuelveNull();
             DadoArchivoCon1EntrenadorCon1Pokemon_AlLeerArchivo_SeCreaSalonCorrectamente();
             DadoArchivoCon1EntrenadorSinPokemon_AlLeerArchivo_SeDevuelveNull();
@@ -630,25 +882,85 @@ int main(){
             DadoArchivoConDosEntrenadoresRepetidos_SiSeIntentaLeer_SeDevuelveNull();
 
         pa2m_nuevo_grupo("Pruebas de agregar entrenador");
+
             DadoEntrenadorSinPokemonOParametrosInexistentes_SiSeIntentaAgregarEntrenador_SeDevuelveNull();
             DadoEntrenadorConAlMenosUnPokemon_SiSeAgregaEntrenador_SeDevuelveElSalonConElEntrenadorAlmacenado();
 
         pa2m_nuevo_grupo("Pruebas de guardar archivo");
+
             DadosParametrosInvalidos_SiSePideGuardarArchivo_SeDevuelveFallo();
             DadoSalonLeidoDeUnArchivoValido_SiSeGuardaEnArchivo_ElArchivoGuardadoEsIgualQueElOriginal();
             DadosSalonesValidosEnGeneral_SiSeGuardanEnArchivos_SeGuardanTodosCorrectamente();
 
         pa2m_nuevo_grupo("Pruebas de filtrar entrenadores");
+
             DadosParametrosInvalidos_SiSeIntentaFiltrar_SeDevuelveNull();
             DadaFuncionDeFiltroQueSeCumpleParaTodoEntrenador_AlFiltrar_SeDevuelveListaConTodosLosEntrenadoresDelSalon();
             DadaFuncionDeFiltroQueNoSeCumpleParaNingunEntrenador_AlFiltrar_SeDevuelveUnaListaVacia();
             DadaFuncionDeFiltroQueSeCumpleParaAlgunosEntrenadores_AlFiltrar_SeDevuelveListaConLosFiltrados();
 
-        pa2m_nuevo_grupo("Pruebas de ejecución de comandos");
+    //===============================================================================//
+
+    pa2m_nuevo_grupo("//  PRUEBAS DE EJECUCIÓN DE COMANDOS  //");
+        pa2m_nuevo_grupo("Pruebas de comandos en general");
+
             DadosParametrosInvalidos_SiSeIntentaEjecutarComando_SeDevuelveNull();
+            DadoComandoNoConocido_SiSeIntentaEjecutarComando_SeDevuelveNull();
+            DadoComandoConNombreConocidoPeroDeParametrosInvalidos_SiSeIntentaEjecutarComando_SeDevuelveNull();
+
+        pa2m_nuevo_grupo("Pruebas de comando ENTRENADOR");
+
+            DadoSalonCon1EntrenadorCon1Pokemon_AlPedirListadoDeEntrenadores_StringDeOutputEsCorrecto();
+            DadoSalonConEntrenadores_AlPedirListadoDeEntrenadores_StringDeOutputLosContieneOrdenadamente();
+
+            DadoNumeroDeVictoriasInalcanzable_AlPedirListadoDeEntrenadoresDeMinimoDichasVictorias_SeDevuelveUnStringVacio();
+            DadoNumeroDeVictoriasAccequible_AlPedirListadoDeEntrenadoresDeMinimoDichasVictorias_StringDeOutputEsElEsperado();
+            DadasCeroVictorias_AlPedirListadoDeEntrenadoresDeMinimoDichasVictorias_StringDeOutputTieneATodosLosEntrenadores();
+
+            DadoSalonConEntrenadoresQueNoTienenLucario_AlPedirListadoDeLosQueTenganLucario_StringDeOutputEsVacio();
+            DadoSalonConUnEntrenadorQueTieneCharizard_AlPedirListadoDeLosQueTenganCharizard_StringDeOutputTieneSoloEseEntrenador();
+            DadoSalonConUnEntrenadorQueTieneDeoxys_AlPedirListadoDeLosQueTenganDeoxys_StringDeOutputTieneSoloEseEntrenador();
+            DadoSalonConTresEntrenadoresQueTienenBulbasaur_AlPedirListadoDeLosQueTenganBulbasaur_StringDeOutputTieneALosTresEntrenadoresEnOrden();
+
+        pa2m_nuevo_grupo("Pruebas de comando EQUIPO");
+
+            DadoSalonConVariosEntrenadores_AlPedirEquipoDeEntrenadorQueNoEstaEnElSalon_SeDevuelveNull();
+            DadoSalonConVariosEntrenadores_AlPedirEquipoDeEntrenadoresQueEstanEnElSalon_StringsDeOutputTienenLosEquiposEnOrdenCorrectamente();
+            
+        pa2m_nuevo_grupo("Pruebas de comando REGLAS");
+
+            DadoSalon_AlPedirReglas_StringDeOutputTieneTodasLasReglasCorrectamente();            
+
+        pa2m_nuevo_grupo("Pruebas de comando COMPARAR");
+
             /*
             Dado_Si_Se();
             Dado_Si_Se();
+            Dado_Si_Se();
+            Dado_Si_Se();
+            */
+
+        pa2m_nuevo_grupo("Pruebas de comando AGREGAR_POKEMON");
+
+            /*
+            Dado_Si_Se();
+            Dado_Si_Se();
+            Dado_Si_Se();
+            Dado_Si_Se();
+            */
+
+        pa2m_nuevo_grupo("Pruebas de comando QUITAR_POKEMON");
+
+            /*
+            Dado_Si_Se();
+            Dado_Si_Se();
+            Dado_Si_Se();
+            Dado_Si_Se();
+            */
+
+        pa2m_nuevo_grupo("Pruebas de comando GUARDAR");
+
+            /*
             Dado_Si_Se();
             Dado_Si_Se();
             Dado_Si_Se();

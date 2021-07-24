@@ -91,6 +91,15 @@ entrenador_t* entrenador_quitar_pokemon(entrenador_t* entrenador, char* nombre_p
 
 
 /**
+ * Devuelve un string duplicado del nombre del entrenador recibido.
+ * (Duplicado a liberar con free).
+ * Devuelve NULL en caso de error.
+*/
+char* entrenador_obtener_nombre(entrenador_t* entrenador);
+
+
+
+/**
  * Devuelve la cantidad de pokemones que posee el equipo del entrenador dado.
  * Devuelve 0 en caso de error.
 */
@@ -98,10 +107,37 @@ size_t entrenador_tamanio_equipo(entrenador_t* entrenador);
 
 
 /**
+ * Función de filtro para entrenadores.
+ * Devuelve true si el entrenador recibido tiene victorias mayores o
+ * iguales a las mínimas recibidas.
+ * Devuelve false en caso contrario.
+*/
+bool entrenador_tiene_victorias_minimas(entrenador_t* entrenador, void* victorias_minimas);
+
+
+/**
+ * Función de filtro para entrenadores.
+ * Devuelve true si el entrenador recibido tiene en su equipo al pokemon
+ * de nombre dado.
+ * Devuelve false en caso contrario.
+*/
+bool entrenador_tiene_pokemon(entrenador_t* entrenador, void* nombre_pokemon);
+
+
+/**
  * Devuelve la cantidad de victorias que posee actualmente el entrenador dado.
  * Devuelve -1 en caso de error.
 */
 int entrenador_cantidad_victorias(entrenador_t* entrenador);
+
+
+/**
+ * Reserva en memoria y devuelve un string con el nombre y las victorias
+ * del entrenador recibido en el siguiente formato: "Nombre,victorias".
+ * El string devuelto debe ser liberado posteriormente con free.
+ * Devuelve NULL en caso de error.
+*/
+char* entrenador_obtener_info_concatenada(entrenador_t* entrenador);
 
 
 /**

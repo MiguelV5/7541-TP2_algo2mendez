@@ -1,21 +1,27 @@
 #include <stdio.h>
+#include <string.h>
 #include "salon.h"
 #include "abb.h"
 #include "util.h"
 #include "hash.h"
 
-const char* REGLA_CLASICA = "CLASICO,Coeficiente de batalla: 0,8*nivel + fuerza + 2*velocidad";
-const char* REGLA_MODERNA = "MODERNO,Coeficiente de batalla: 0,5*nivel + 0,9*defensa + 3*inteligencia";
-const char* REGLA_RESISTENCIA = "ACORAZADO,Coeficiente de batalla: (0,75*nivel + defensa)/velocidad";
-const char* REGLA_FISICA = "FISICO,Coeficiente de batalla: (0,25*nivel + 0,8*fuerza - 0,1*inteligencia)*velocidad";
-const char* REGLA_ELEGANCIA = "ELEGANTE,Coeficiente de batalla: (0,6*nivel + 0,7*velocidad)*inteligencia/defensa ";
+const char* REGLA_CLASICA = "COMBATE CLASICO,Coeficiente de batalla: 0.8*nivel + fuerza + 2*velocidad";
+const char* REGLA_MODERNA = "COMBATE MODERNO,Coeficiente de batalla: 0.5*nivel + 0.9*defensa + 3*inteligencia";
+const char* REGLA_RESISTENCIA = "COMBATE ACORAZADO,Coeficiente de batalla: (0.75*nivel + defensa)/velocidad";
+const char* REGLA_FISICA = "COMBATE FISICO,Coeficiente de batalla: (0.25*nivel + 0.8*fuerza - 0.1*inteligencia)*velocidad";
+const char* REGLA_ELEGANCIA = "COMBATE ELEGANTE,Coeficiente de batalla: (0.6*nivel + 0.7*velocidad)*inteligencia/defensa";
 
+const char* REGLAS_CONCATENADAS_EN_FORMATO = "COMBATE CLASICO,Coeficiente de batalla: 0.8*nivel + fuerza + 2*velocidad\nCOMBATE MODERNO,Coeficiente de batalla: 0.5*nivel + 0.9*defensa + 3*inteligencia\nCOMBATE ACORAZADO,Coeficiente de batalla: (0.75*nivel + defensa)/velocidad\nCOMBATE FISICO,Coeficiente de batalla: (0.25*nivel + 0.8*fuerza - 0.1*inteligencia)*velocidad\nCOMBATE ELEGANTE,Coeficiente de batalla: (0.6*nivel + 0.7*velocidad)*inteligencia/defensa\n";
 
+#define SALTO_DE_LINEA "\n"
+const char SEPARADOR_PARAMETROS_COMANDO = ',';
 const char SEPARADOR_EN_LECTURA = ';';
 const char SEPARADOR_NOMBRE_COMANDO = ':';
-const char SEPARADOR_ARGUMENTOS_COMANDO = ',';
 #define CANTIDAD_CAMPOS_ENTRENADOR 2
 #define CANTIDAD_CAMPOS_POKEMON 6
+
+#define PARAMETRO_VICTORIAS "victorias"
+#define PARAMETRO_POKEMON "pokemon" // Uso: para distinción de parámetros en comando ENTRENADORES
 
 #define COMANDO_ENTRENADORES "ENTRENADORES"
 #define COMANDO_EQUIPO "EQUIPO"
@@ -88,9 +94,6 @@ comando_t* comando_crear(char* nombre_comando, ejecutar_comando_t ejecutor){
 */
 void comando_destruir(void* comando){
 
-    if(!comando){
-        return;
-    }
     free(comando);
     comando = NULL;
 
@@ -100,20 +103,179 @@ void comando_destruir(void* comando){
 
 
 /**
+ * Libera todos los strings del vector de punteros.
+*/
+void liberar_strings_recolectados(char** vector_strings, size_t tamanio_vector){
+
+    for(size_t i = 0; i < tamanio_vector; i++){
+        free(vector_strings[i]);
+    }
+
+}
+
+/**
+ * Dado un vector de strings, concatena a cada uno de los mismos en orden separandolos con un "\n".
+ * Devuelve el string resultante de la recopilación o NULL en caso de error.
+*/
+char* recopilacion_y_formateo_de_strings(char** vector_strings, size_t tamanio_vector){
+
+    char* string_resultante = NULL;
+    size_t memoria_requerida = 1; // 1 desde el comienzo para considerar el \0. 
+
+    for(int i = 0; i < tamanio_vector; i++){
+        memoria_requerida += (strlen(vector_strings[i]) + 1); //+1 para considerar a los \n.
+    }
+
+    string_resultante = malloc(memoria_requerida*sizeof(char));
+    if(!string_resultante){
+        return NULL;
+    }
+    strcpy(string_resultante, vector_strings[0]);
+    strcat(string_resultante, SALTO_DE_LINEA);
+
+    for(int i = 1; i < tamanio_vector; i++){
+        strcat(string_resultante, vector_strings[i]);
+        strcat(string_resultante, SALTO_DE_LINEA);
+    }
+
+    return string_resultante;
+
+}
+
+/**
+ * Finaliza con la ejecución del parametro recibido del comando ENTRENADORES.
+ * Devuelve el string de output con el listado de entrenadores correspondiente o NULL en caso de error.
+*/
+char* procesar_parametro_final_entrenador(salon_t* salon, bool (*filtro)(entrenador_t*, void*), void* parametro_final){
+
+    char* string_resultante = NULL;
+    lista_t* entrenadores_filtrados = entrenadores_filtrados = salon_filtrar_entrenadores(salon, filtro, parametro_final);
+
+    if(lista_vacia(entrenadores_filtrados)){
+        lista_destruir(entrenadores_filtrados);
+        string_resultante = calloc(2, sizeof(char));
+        return string_resultante;
+    }
+
+    size_t cantidad_nombres_a_concatenar = lista_elementos(entrenadores_filtrados);
+    char* nombres_a_concatenar[cantidad_nombres_a_concatenar];
+
+    lista_iterador_t* iter_entrenadores = lista_iterador_crear(entrenadores_filtrados);
+    int i = 0;
+    bool fallo_en_obtencion = false;
+    entrenador_t* entrenador_actual = NULL;
+    while(lista_iterador_tiene_siguiente(iter_entrenadores) && !fallo_en_obtencion){
+
+        entrenador_actual = lista_iterador_elemento_actual(iter_entrenadores);
+
+        nombres_a_concatenar[i] = entrenador_obtener_nombre(entrenador_actual);
+        if(nombres_a_concatenar[i]==NULL){
+            fallo_en_obtencion = true;
+        }
+
+        lista_iterador_avanzar(iter_entrenadores);
+        i++;
+    }
+    lista_iterador_destruir(iter_entrenadores);
+    if(fallo_en_obtencion){
+        lista_destruir(entrenadores_filtrados);
+        return NULL;
+    }
+
+    string_resultante = recopilacion_y_formateo_de_strings(nombres_a_concatenar, cantidad_nombres_a_concatenar);
+    if(!string_resultante){
+        liberar_strings_recolectados(nombres_a_concatenar, cantidad_nombres_a_concatenar);
+        lista_destruir(entrenadores_filtrados);
+        return NULL;
+    }
+
+    liberar_strings_recolectados(nombres_a_concatenar, cantidad_nombres_a_concatenar);
+    lista_destruir(entrenadores_filtrados);
+
+    return string_resultante;
+    
+}
+
+/**
+ * Procesa la ejecución de los parametros "victorias" y "pokemon" del comando ENTRENADORES.
+ * Devuelve el string de output con el listado de entrenadores correspondiente o NULL en caso de error.
+*/
+char* procesar_parametros_de_comando_entrenador(salon_t* salon, char** parametros){
+
+    char* string_resultante = NULL;
+
+    if(strcmp(PARAMETRO_VICTORIAS, parametros[0]) == 0){
+
+        int victorias_minimas_pedidas = atoi(parametros[1]);
+        string_resultante = procesar_parametro_final_entrenador(salon, entrenador_tiene_victorias_minimas, &victorias_minimas_pedidas);
+
+    }
+    else if(strcmp(PARAMETRO_POKEMON, parametros[0]) == 0){
+
+        char* nombre_pokemon_pedido = parametros[1];
+        string_resultante = procesar_parametro_final_entrenador(salon, entrenador_tiene_pokemon, nombre_pokemon_pedido);
+
+    }
+
+    return string_resultante;
+
+}
+
+/**
  * Recibe argumentos relacionados al comando ENTRENADORES y un salon (ya inicializado).
- * Ejecuta la solicitud que posean los argumentos y devuelve un string de output correspondiente a
- * las acciones de cada uno.
+ * Ejecuta la solicitud que posean los argumentos y devuelve un string de output con un listado de
+ * entrenadores determinado.
 */
 char* salon_pedir_entrenadores_listados(salon_t* salon, char** argumentos){
 
-    return NULL;
+    char* string_resultante = NULL;
+    size_t cantidad_argumentos = vtrlen(argumentos); 
+
+    if(cantidad_argumentos == 1){ //Solo se tenía el argumento ENTRENADORES sin parámetros adicionales.
+
+        entrenador_t* vector_entrenadores[salon->cantidad_entrenadores];
+        arbol_recorrido_inorden(salon->abb_entrenadores, (void**)vector_entrenadores, salon->cantidad_entrenadores);
+
+        char* informacion_entrenadores[salon->cantidad_entrenadores];
+        
+        for(int i = 0; i < salon->cantidad_entrenadores; i++){
+            informacion_entrenadores[i] = entrenador_obtener_info_concatenada(vector_entrenadores[i]);
+        }
+
+        string_resultante = recopilacion_y_formateo_de_strings(informacion_entrenadores, salon->cantidad_entrenadores);
+        if(!string_resultante){
+            liberar_strings_recolectados(informacion_entrenadores, salon->cantidad_entrenadores);
+            return NULL;
+        }
+
+        liberar_strings_recolectados(informacion_entrenadores, salon->cantidad_entrenadores);
+
+    }
+    else if(cantidad_argumentos == 2){ //Habían más parámetros. No se usa 'else' porque no existen comandos con cantidad de argumentos que no sea 1 ni 2.
+
+        char** parametros_extras_divididos = split(argumentos[1], SEPARADOR_PARAMETROS_COMANDO);
+        if(!parametros_extras_divididos){
+            return NULL;
+        }
+        else if(vtrlen(parametros_extras_divididos) != 2){
+            vtrfree(parametros_extras_divididos);
+            return NULL;
+        }
+
+        string_resultante = procesar_parametros_de_comando_entrenador(salon, parametros_extras_divididos);
+
+        vtrfree(parametros_extras_divididos);
+
+    }
+
+    return string_resultante;
 
 }
 
 /**
  * Recibe argumentos relacionados al comando EQUIPO y un salon (ya inicializado).
- * Ejecuta la solicitud que posean los argumentos y devuelve un string de output correspondiente a
- * las acciones de cada uno.
+ * Ejecuta la solicitud que posean los argumentos y devuelve un string de output con el equipo pokemon
+ * de un entrenador determinado.
 */
 char* salon_pedir_equipo_de_entrenador(salon_t* salon, char** argumentos){
 
@@ -122,20 +284,28 @@ char* salon_pedir_equipo_de_entrenador(salon_t* salon, char** argumentos){
 }
 
 /**
- * Recibe argumentos relacionados al comando REGLAS y un salon (ya inicializado).
- * Ejecuta la solicitud que posean los argumentos y devuelve un string de output correspondiente a
- * las acciones de cada uno.
+ * Recibe un salon (ya inicializado). 
+ * Los argumentos no son usados porque simplemente es el comando (REGLAS).
+ * Devuelve un string de output con todas las reglas de batalla disponibles o NULL en caso de error.
 */
 char* salon_pedir_reglas(salon_t* salon, char** argumentos){
 
-    return NULL;
+    size_t memoria_requerida = strlen(REGLAS_CONCATENADAS_EN_FORMATO) + 1;
+
+    char* string_resultado = malloc(memoria_requerida*sizeof(char));
+    if(!string_resultado){
+        return NULL;
+    }
+    strcpy(string_resultado, REGLAS_CONCATENADAS_EN_FORMATO);
+
+    return string_resultado;
 
 }
 
 /**
  * Recibe argumentos relacionados al comando COMPARAR y un salon (ya inicializado).
- * Ejecuta la solicitud que posean los argumentos y devuelve un string de output correspondiente a
- * las acciones de cada uno.
+ * Ejecuta la solicitud que posean los argumentos y devuelve un string de output con el resultado de
+ * todas las posibles batallas entre los equipos pokemon de dos entrenadores.
 */
 char* salon_comparar_entrenadores(salon_t* salon, char** argumentos){
 
@@ -145,8 +315,8 @@ char* salon_comparar_entrenadores(salon_t* salon, char** argumentos){
 
 /**
  * Recibe argumentos relacionados al comando AGREGAR_POKEMON y un salon (ya inicializado).
- * Ejecuta la solicitud que posean los argumentos y devuelve un string de output correspondiente a
- * las acciones de cada uno.
+ * Agrega a un entrenador determinado el pokemon con los datos que posean los argumentos y devuelve
+ * un string de output "OK".
 */
 char* salon_pedir_agregar_pokemon(salon_t* salon, char** argumentos){
 
@@ -156,8 +326,9 @@ char* salon_pedir_agregar_pokemon(salon_t* salon, char** argumentos){
 
 /**
  * Recibe argumentos relacionados al comando QUITAR_POKEMON y un salon (ya inicializado).
- * Ejecuta la solicitud que posean los argumentos y devuelve un string de output correspondiente a
- * las acciones de cada uno.
+ * Intenta quitar a un entrenador determinado el pokemon con el nombre que posean los argumentos.
+ * Devuelve un string de output "OK" si pudo quitarlo o NULL en caso de que el entrenador tenga solo
+ * un pokemon restante en su equipo.
 */
 char* salon_pedir_quitar_pokemon(salon_t* salon, char** argumentos){
 
@@ -167,8 +338,8 @@ char* salon_pedir_quitar_pokemon(salon_t* salon, char** argumentos){
 
 /**
  * Recibe argumentos relacionados al comando GUARDAR y un salon (ya inicializado).
- * Ejecuta la solicitud que posean los argumentos y devuelve un string de output correspondiente a
- * las acciones de cada uno.
+ * Guarda el salon a un archivo a partir del nombre que posea el argumento y devuelve un string
+ * de output "OK" si pudo guardarlo, NULL en caso contrario.
 */
 char* salon_pedir_guardado(salon_t* salon, char** argumentos){
 
@@ -631,7 +802,24 @@ lista_t* salon_filtrar_entrenadores(salon_t* salon , bool (*f)(entrenador_t*, vo
 
 char* salon_ejecutar_comando(salon_t* salon, const char* comando){
 
-    return NULL;
+    if(!salon || !comando){
+        return NULL;
+    }
+    else if(strlen(comando)==0){
+        return NULL;
+    }
+
+    char** argumentos_a_procesar = split(comando, SEPARADOR_NOMBRE_COMANDO);
+    comando_t* comando_requerido = hash_obtener(salon->comandos_predeterminados, argumentos_a_procesar[0]);
+    if(!comando_requerido){
+        vtrfree(argumentos_a_procesar);
+        return NULL;
+    }
+
+    char* resultados_de_ejecucion = comando_requerido->ejecutor(salon, argumentos_a_procesar);
+
+    vtrfree(argumentos_a_procesar);
+    return resultados_de_ejecucion;
 
 }
 
