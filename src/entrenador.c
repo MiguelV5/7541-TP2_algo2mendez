@@ -6,8 +6,26 @@
 #define EXITO 0
 
 #define SEPARADOR_CONCATENACION ","
+#define SALTO_LINEA "\n"
 #define FORMATO_ESCRITURA_ENTRENADOR "%s;%i\n"
 #define FORMATO_ESCRITURA_POKEMON "%s;%i;%i;%i;%i;%i\n"
+
+#define REGLA_CLASICA_NOMBRE_MAYUS "CLASICO"
+#define REGLA_CLASICA_NOMBRE_MINUS "clasico"
+
+#define REGLA_MODERNA_NOMBRE_MAYUS "MODERNO"
+#define REGLA_MODERNA_NOMBRE_MINUS "moderno"
+
+#define REGLA_RESISTENCIA_NOMBRE_MAYUS "RESISTENTE"
+#define REGLA_RESISTENCIA_NOMBRE_MINUS "resistente"
+
+#define REGLA_FISICA_NOMBRE_MAYUS "FISICO"
+#define REGLA_FISICA_NOMBRE_MINUS "fisico"
+
+#define REGLA_ELEGANCIA_NOMBRE_MAYUS "ELEGANTE"
+#define REGLA_ELEGANCIA_NOMBRE_MINUS "elegante"
+
+
 
 struct _pokemon_t{
     char* nombre;
@@ -199,10 +217,239 @@ int entrenador_comparar_nombres(void* entrenador_1, void* entrenador_2){
 
 
 
+/**
+ * Devuele true si la regla de batalla es CLASICA, false en caso contrario
+*/
+bool regla_es_clasica(char* regla_de_batalla){
+    return (strcmp(regla_de_batalla, REGLA_CLASICA_NOMBRE_MAYUS)==0 || strcmp(regla_de_batalla, REGLA_CLASICA_NOMBRE_MINUS)==0);
+}
 
-char** entrenador_enfrentar(entrenador_t* entrenador_1, entrenador_t* entrenador_2 , char* regla_de_batalla){
+/**
+ * Devuele true si la regla de batalla es MODERNA, false en caso contrario
+*/
+bool regla_es_moderna(char* regla_de_batalla){
+    return (strcmp(regla_de_batalla, REGLA_MODERNA_NOMBRE_MAYUS)==0 || strcmp(regla_de_batalla, REGLA_MODERNA_NOMBRE_MINUS)==0);
+}
 
-    return NULL;
+/**
+ * Devuele true si la regla de batalla es RESISTENCIA, false en caso contrario
+*/
+bool regla_es_resistencia(char* regla_de_batalla){
+    return (strcmp(regla_de_batalla, REGLA_RESISTENCIA_NOMBRE_MAYUS)==0 || strcmp(regla_de_batalla, REGLA_RESISTENCIA_NOMBRE_MINUS)==0);
+}
+
+/**
+ * Devuele true si la regla de batalla es FISICA, false en caso contrario
+*/
+bool regla_es_fisica(char* regla_de_batalla){
+    return (strcmp(regla_de_batalla, REGLA_FISICA_NOMBRE_MAYUS)==0 || strcmp(regla_de_batalla, REGLA_FISICA_NOMBRE_MINUS)==0);
+}
+
+/**
+ * Devuele true si la regla de batalla es ELEGANCIA, false en caso contrario
+*/
+bool regla_es_elegancia(char* regla_de_batalla){
+    return (strcmp(regla_de_batalla, REGLA_ELEGANCIA_NOMBRE_MAYUS)==0 || strcmp(regla_de_batalla, REGLA_ELEGANCIA_NOMBRE_MINUS)==0);
+}
+
+
+/**
+ * Compara el calculo de coeficiente de batalla entre ambos pokemones.
+ * Devuelve '1' si ganó el primero, '2' si ganó el segundo.
+ * En caso de coeficientes coincidentes, gana el primero.
+*/
+char comparar_coeficiente_clasico(pokemon_t* pokemon_1, pokemon_t* pokemon_2){
+
+    char resultado_batalla = '1';
+
+    double coeficiente_poke_1 = 0.8*(double)(pokemon_1->nivel) + pokemon_1->fuerza + 2*(pokemon_1->velocidad);
+    double coeficiente_poke_2 = 0.8*(double)(pokemon_2->nivel) + pokemon_2->fuerza + 2*(pokemon_2->velocidad);
+
+    if(coeficiente_poke_1 >= coeficiente_poke_2){
+        resultado_batalla = '1';
+    }
+    else{
+        resultado_batalla = '2';
+    }
+
+    return resultado_batalla;
+
+}
+
+/**
+ * Compara el calculo de coeficiente de batalla entre ambos pokemones.
+ * Devuelve '1' si ganó el primero, '2' si ganó el segundo.
+ * En caso de coeficientes coincidentes, gana el primero.
+*/
+char comparar_coeficiente_moderno(pokemon_t* pokemon_1, pokemon_t* pokemon_2){
+
+    char resultado_batalla = '1';
+
+    double coeficiente_poke_1 = 0.5*(double)(pokemon_1->nivel) + 0.9*(double)(pokemon_1->defensa) + 3*(pokemon_1->inteligencia);
+    double coeficiente_poke_2 = 0.5*(double)(pokemon_2->nivel) + 0.9*(double)(pokemon_2->defensa) + 3*(pokemon_2->inteligencia);
+
+    if(coeficiente_poke_1 >= coeficiente_poke_2){
+        resultado_batalla = '1';
+    }
+    else{
+        resultado_batalla = '2';
+    }
+
+    return resultado_batalla;
+
+}
+
+/**
+ * Compara el calculo de coeficiente de batalla entre ambos pokemones.
+ * Devuelve '1' si ganó el primero, '2' si ganó el segundo.
+ * En caso de coeficientes coincidentes, gana el primero.
+*/
+char comparar_coeficiente_resistente(pokemon_t* pokemon_1, pokemon_t* pokemon_2){
+
+    char resultado_batalla = '1';
+
+    double coeficiente_poke_1 = (0.75*(double)(pokemon_1->nivel) + pokemon_1->defensa)/(double)(pokemon_1->velocidad);
+    double coeficiente_poke_2 = (0.75*(double)(pokemon_2->nivel) + pokemon_2->defensa)/(double)(pokemon_2->velocidad);
+
+    if(coeficiente_poke_1 >= coeficiente_poke_2){
+        resultado_batalla = '1';
+    }
+    else{
+        resultado_batalla = '2';
+    }
+
+    return resultado_batalla;
+
+}
+
+/**
+ * Compara el calculo de coeficiente de batalla entre ambos pokemones.
+ * Devuelve '1' si ganó el primero, '2' si ganó el segundo.
+ * En caso de coeficientes coincidentes, gana el primero.
+*/
+char comparar_coeficiente_fisico(pokemon_t* pokemon_1, pokemon_t* pokemon_2){
+
+    char resultado_batalla = '1';
+
+    double coeficiente_poke_1 = (0.25*(double)(pokemon_1->nivel) + 0.8*(double)(pokemon_1->fuerza) - 0.1*(double)(pokemon_1->inteligencia))*(pokemon_1->velocidad);
+    double coeficiente_poke_2 = (0.25*(double)(pokemon_2->nivel) + 0.8*(double)(pokemon_2->fuerza) - 0.1*(double)(pokemon_2->inteligencia))*(pokemon_2->velocidad);
+
+    if(coeficiente_poke_1 >= coeficiente_poke_2){
+        resultado_batalla = '1';
+    }
+    else{
+        resultado_batalla = '2';
+    }
+
+    return resultado_batalla;
+
+}
+
+/**
+ * Compara el calculo de coeficiente de batalla entre ambos pokemones.
+ * Devuelve '1' si ganó el primero, '2' si ganó el segundo.
+ * En caso de coeficientes coincidentes, gana el primero.
+*/
+char comparar_coeficiente_elegante(pokemon_t* pokemon_1, pokemon_t* pokemon_2){
+
+    char resultado_batalla = '1';
+
+    double coeficiente_poke_1 = (0.6*(double)(pokemon_1->nivel) + 0.7*(double)(pokemon_1->velocidad))*(double)(pokemon_1->inteligencia)/(double)(pokemon_1->defensa);
+    double coeficiente_poke_2 = (0.6*(double)(pokemon_2->nivel) + 0.7*(double)(pokemon_2->velocidad))*(double)(pokemon_2->inteligencia)/(double)(pokemon_2->defensa);
+
+    if(coeficiente_poke_1 >= coeficiente_poke_2){
+        resultado_batalla = '1';
+    }
+    else{
+        resultado_batalla = '2';
+    }
+
+    return resultado_batalla;
+
+}
+
+/**
+ * Dados iteradores correspondientes a los equipos pokemon de dos entrenadores distintos y 
+ * una función de comparación de coeficientes, simula las batallas entre dichos equipos
+ * y devuelve un string (a liberar con free) con los resultados de todos los enfrentamientos
+ * librados (o NULL en caso de error).
+*/
+char* procesador_de_enfrentamientos(lista_iterador_t* iter_1, lista_iterador_t* iter_2, char (*comparador_de_coeficiente)(pokemon_t*, pokemon_t*)){
+
+    bool hubo_un_fallo = false;
+    size_t cantidad_maxima_de_enfrentamientos = lista_elementos(iter_1->lista) + lista_elementos(iter_2->lista);
+    char* resultados_finales = calloc(cantidad_maxima_de_enfrentamientos*2 + 1, sizeof(char));
+    //cantidad*2 debido a que por cada enfrentamiento se va a concatenar un '\n' al string. +1 para asegurar el espacio del '\0' en el caso en el que se enfrenten todos los pokemon de ambos equipos.
+
+    size_t i = 0;
+    pokemon_t* poke_actual_equipo_1 = NULL;
+    pokemon_t* poke_actual_equipo_2 = NULL;
+    while(!hubo_un_fallo && lista_iterador_tiene_siguiente(iter_1) && lista_iterador_tiene_siguiente(iter_2)){
+
+        poke_actual_equipo_1 = lista_iterador_elemento_actual(iter_1);
+        poke_actual_equipo_2 = lista_iterador_elemento_actual(iter_2);
+
+        if(comparador_de_coeficiente(poke_actual_equipo_1, poke_actual_equipo_2)=='1'){
+
+            resultados_finales[i] = '1';
+            resultados_finales[i+1] = '\n';
+            lista_iterador_avanzar(iter_2);
+            i++;
+
+        }
+        else{ // ganó '2'
+
+            resultados_finales[i] = '2';
+            resultados_finales[i+1] = '\n';
+            lista_iterador_avanzar(iter_1);
+            i++;
+
+        }
+
+        i++;
+    }
+
+    return resultados_finales;
+
+}
+
+char* entrenador_enfrentar(entrenador_t* entrenador_1, entrenador_t* entrenador_2 , char* regla_de_batalla){
+
+    lista_t* equipo_1 = entrenador_1->equipo;
+    lista_t* equipo_2 = entrenador_2->equipo;
+
+    lista_iterador_t* iter_1 = lista_iterador_crear(equipo_1);
+    if(!iter_1){
+        return NULL;
+    }
+    lista_iterador_t* iter_2 = lista_iterador_crear(equipo_2);
+    if(!iter_2){
+        lista_iterador_destruir(iter_1);
+        return NULL;
+    }
+
+    char* resultado_batallas = NULL;
+
+    if(regla_es_clasica(regla_de_batalla)){
+        resultado_batallas = procesador_de_enfrentamientos(iter_1, iter_2, comparar_coeficiente_clasico);
+    }
+    else if(regla_es_moderna(regla_de_batalla)){
+        resultado_batallas = procesador_de_enfrentamientos(iter_1, iter_2, comparar_coeficiente_moderno);
+    }
+    else if(regla_es_resistencia(regla_de_batalla)){
+        resultado_batallas = procesador_de_enfrentamientos(iter_1, iter_2, comparar_coeficiente_resistente);
+    }
+    else if(regla_es_fisica(regla_de_batalla)){
+        resultado_batallas = procesador_de_enfrentamientos(iter_1, iter_2, comparar_coeficiente_fisico);
+    }
+    else if(regla_es_elegancia(regla_de_batalla)){
+        resultado_batallas = procesador_de_enfrentamientos(iter_1, iter_2, comparar_coeficiente_elegante);
+    }
+
+    lista_iterador_destruir(iter_1);
+    lista_iterador_destruir(iter_2);
+    
+    return resultado_batallas;
 
 }
 
@@ -233,6 +480,223 @@ char* entrenador_obtener_nombre(entrenador_t* entrenador){
 
 }
 
+
+/**
+ * Devuelve la cantidad necesaria de memoria que se requiere para obtener un string que concatene la
+ * información de todos los pokemon en un equipo con formato csv.
+*/
+size_t calcular_tamanio_reserva_para_equipo(lista_t* equipo, char** strings_a_concatenar, size_t totalidad_strings_a_concatenar){
+
+    size_t cantidad_pokemones = lista_elementos(equipo);
+
+    size_t tamanio_total_reserva =  1 + cantidad_pokemones*6 ; // +1 para tomar en cuenta al '\0', +cantidad_pokemones*6 para tomar en cuenta a las 5 comas ',' que van a separar los campos y el '\n' por cada pokemon.
+
+    for(size_t i = 0; i < totalidad_strings_a_concatenar; i++){
+        tamanio_total_reserva += strlen(strings_a_concatenar[i]);
+    }
+
+    return tamanio_total_reserva;
+
+}
+
+/**
+ * Libera todos los strings del vector de punteros.
+*/
+void liberar_strings_recopilados(char** vector_strings, size_t tamanio_vector){
+
+    for(size_t i = 0; i < tamanio_vector; i++){
+        free(vector_strings[i]);
+    }
+
+}
+
+/**
+ * Calcula la memoria requerida para hacer una reserva de strings que almacenen los campos de un pokemon.
+*/
+void calcular_memoria_por_campo_pokemon(size_t* memoria_requerida_por_campo, pokemon_t* pokemon){
+
+    memoria_requerida_por_campo[0] = strlen(pokemon->nombre)+1;
+    memoria_requerida_por_campo[1] = (size_t)snprintf(NULL, 0 , "%d", pokemon->nivel) + 1;
+    memoria_requerida_por_campo[2] = (size_t)snprintf(NULL, 0 , "%d", pokemon->defensa) + 1;
+    memoria_requerida_por_campo[3] = (size_t)snprintf(NULL, 0 , "%d", pokemon->fuerza) + 1;
+    memoria_requerida_por_campo[4] = (size_t)snprintf(NULL, 0 , "%d", pokemon->inteligencia) + 1;
+    memoria_requerida_por_campo[5] = (size_t)snprintf(NULL, 0 , "%d", pokemon->velocidad) + 1;
+
+}
+
+/**
+ * Reserva la memoria requerida para strings que almacenen los campos de un pokemon y almacena su
+ * información.
+ * Recibe el vector de strings en el que se va a almacenar, la posicion inicial desde donde se
+ * debe empezar a almacenar, el vector con los tamaños en memoria por campo y el pokemon.
+*/
+int almacenar_en_memoria_cada_campo_pokemon(char** strings_por_cada_campo, size_t* posicion, size_t* memoria_requerida_por_campo, pokemon_t* pokemon){
+    
+    strings_por_cada_campo[*posicion] = malloc(memoria_requerida_por_campo[0]);
+    if(!strings_por_cada_campo[*posicion]){
+        return FALLO;
+    }
+    strcpy(strings_por_cada_campo[*posicion], pokemon->nombre);
+    (*posicion)++;
+
+    strings_por_cada_campo[*posicion] = malloc(memoria_requerida_por_campo[1]);
+    if(!strings_por_cada_campo[*posicion]){
+        return FALLO;
+    }
+    snprintf(strings_por_cada_campo[*posicion], memoria_requerida_por_campo[1], "%d", pokemon->nivel);
+    (*posicion)++;
+
+    strings_por_cada_campo[*posicion] = malloc(memoria_requerida_por_campo[2]);
+    if(!strings_por_cada_campo[*posicion]){
+        return FALLO;
+    }
+    snprintf(strings_por_cada_campo[*posicion], memoria_requerida_por_campo[2], "%d", pokemon->defensa);
+    (*posicion)++;
+
+    strings_por_cada_campo[*posicion] = malloc(memoria_requerida_por_campo[3]);
+    if(!strings_por_cada_campo[*posicion]){
+        return FALLO;
+    }
+    snprintf(strings_por_cada_campo[*posicion], memoria_requerida_por_campo[3], "%d", pokemon->fuerza);
+    (*posicion)++;
+
+    strings_por_cada_campo[*posicion] = malloc(memoria_requerida_por_campo[4]);
+    if(!strings_por_cada_campo[*posicion]){
+        return FALLO;
+    }
+    snprintf(strings_por_cada_campo[*posicion], memoria_requerida_por_campo[4], "%d", pokemon->inteligencia);
+    (*posicion)++;
+
+    strings_por_cada_campo[*posicion] = malloc(memoria_requerida_por_campo[5]);
+    if(!strings_por_cada_campo[*posicion]){
+        return FALLO;
+    }
+    snprintf(strings_por_cada_campo[*posicion], memoria_requerida_por_campo[5], "%d", pokemon->velocidad);
+    (*posicion)++;
+
+    return EXITO;
+
+}
+
+/**
+ * Devuelve true si se debe concatenar un salto de linea en la posición justo posterior a la dada a la
+ * hora de concatenar la informacion completa de un equipo pokemon.
+ * Devuelve false en caso contrario.
+ * (Los campos de un pokemon son 6, por ende se hace salto de linea cada que se finaliza con 6
+ * campos concatenados).
+*/
+bool hay_que_saltar_de_linea(size_t posicion){
+
+    return (posicion%6 == 0);
+
+}
+
+/**
+ * Realiza la concatenacion final de todos los datos pokemon.
+ * Devuelve el string resultante.
+*/
+char* concatenar_info_con_formato(lista_t* equipo, char** strings_por_cada_campo, size_t totalidad_de_campos){
+
+    size_t tamanio_total_reserva =  calcular_tamanio_reserva_para_equipo(equipo, strings_por_cada_campo, totalidad_de_campos);
+
+    char* info_concatenada = malloc(tamanio_total_reserva*sizeof(char));
+    if(!info_concatenada){
+        return NULL;
+    }
+
+    strcpy(info_concatenada, strings_por_cada_campo[0]);
+    strcat(info_concatenada, SEPARADOR_CONCATENACION);
+    //Para este caso particular, debido a que se debe hacer strcpy primero y se empieza iteracion desde la posicion 1, se debe verificar la iteracion 5 y no posicion%6 ya que 5 son los campos que faltaban de ese pokemon, estaba "adelantado" por uno con respecto a los demás.
+
+    for(size_t i = 1; i < totalidad_de_campos; i++){
+
+        if(i < 5){
+            strcat(info_concatenada, strings_por_cada_campo[i]);
+            strcat(info_concatenada, SEPARADOR_CONCATENACION);
+        }
+        else if(i == 5){
+            strcat(info_concatenada, strings_por_cada_campo[i]);
+            strcat(info_concatenada, SALTO_LINEA); 
+        }
+        else if(i == 6){
+            strcat(info_concatenada, strings_por_cada_campo[i]);
+            strcat(info_concatenada, SEPARADOR_CONCATENACION); 
+        }
+        else if(hay_que_saltar_de_linea(i+1)==false && (i > 6)){
+            strcat(info_concatenada, strings_por_cada_campo[i]);
+            strcat(info_concatenada, SEPARADOR_CONCATENACION);
+        }
+        else if(hay_que_saltar_de_linea(i+1)==true && (i > 6)){
+            strcat(info_concatenada, strings_por_cada_campo[i]);
+            strcat(info_concatenada, SALTO_LINEA); 
+        }
+
+    }
+
+    return info_concatenada;
+
+}
+
+/**
+ * Asigna los strings del vector con la información completa por cada pokemon separada con comas ','.
+ * Cada string debe ser posteriormente liberado con free.
+ * Devuelve 0 si pudo, -1 en caso de error.
+*/
+char* equipo_obtener_string_concatenado(lista_t* equipo, size_t cantidad_pokemones){
+
+    size_t totalidad_de_campos = cantidad_pokemones*6;
+    char* strings_por_cada_campo[totalidad_de_campos]; //Cada pokemon tiene 6 campos, cada campo de la totalidad es un string a concatenar.
+
+    size_t memoria_requerida_por_campo[6]; // Var. auxiliar para obtener el tamaño requerido para reservar cada campo de pokemon como un string 
+
+    pokemon_t* pokemon_actual = NULL;
+    size_t almacenados_hasta_el_momento = 0;
+    bool hubo_fallo = false;
+    size_t i = 0;
+    lista_iterador_t* iter_pokemones = lista_iterador_crear(equipo);
+    while(lista_iterador_tiene_siguiente(iter_pokemones) && !hubo_fallo){
+
+        pokemon_actual = lista_iterador_elemento_actual(iter_pokemones);
+
+        calcular_memoria_por_campo_pokemon(memoria_requerida_por_campo, pokemon_actual);
+
+        int resultado_reserva = almacenar_en_memoria_cada_campo_pokemon(strings_por_cada_campo, &i, memoria_requerida_por_campo, pokemon_actual);
+        if(resultado_reserva==FALLO){
+            hubo_fallo = true;
+        }
+
+        lista_iterador_avanzar(iter_pokemones);
+        almacenados_hasta_el_momento += 6; //Se almacenan 6 campos por cada iteracion.
+
+    }
+    lista_iterador_destruir(iter_pokemones);
+    if(hubo_fallo){
+        liberar_strings_recopilados(strings_por_cada_campo, almacenados_hasta_el_momento);
+        return NULL;
+    }
+
+    char* resultado_concatenado = concatenar_info_con_formato(equipo, strings_por_cada_campo, totalidad_de_campos);
+
+    liberar_strings_recopilados(strings_por_cada_campo, almacenados_hasta_el_momento);
+
+    return resultado_concatenado;
+
+}
+
+
+char* entrenador_obtener_equipo_concatenado(entrenador_t* entrenador){
+
+    size_t cantidad_pokemones = lista_elementos(entrenador->equipo);
+    char* informacion_completa_equipo = NULL;
+
+    informacion_completa_equipo = equipo_obtener_string_concatenado(entrenador->equipo, cantidad_pokemones);
+    if(!informacion_completa_equipo){
+        return NULL;
+    }
+
+    return informacion_completa_equipo;
+
+}
 
 
 size_t entrenador_tamanio_equipo(entrenador_t* entrenador){

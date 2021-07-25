@@ -15,6 +15,8 @@
 #define SALON_2E_IGUALES "archivos_prueba/salon_2e_iguales.txt"
 #define SALON_5E_INTEGRO_PARA_COMANDOS "archivos_prueba/salon_5e_integro_para_comandos.txt"
 
+const char* REGLAS_CONCATENADAS_EN_FORMATO = "CLASICO,Coeficiente de batalla: 0.8*nivel + fuerza + 2*velocidad\nMODERNO,Coeficiente de batalla: 0.5*nivel + 0.9*defensa + 3*inteligencia\nRESISTENTE,Coeficiente de batalla: (0.75*nivel + defensa)/velocidad\nFISICO,Coeficiente de batalla: (0.25*nivel + 0.8*fuerza - 0.1*inteligencia)*velocidad\nELEGANTE,Coeficiente de batalla: (0.6*nivel + 0.7*velocidad)*inteligencia/defensa\n";
+
 #define ARCHIVO_DE_PRUEBA_PARA_ESCRIBIR_1 "archivos_prueba/salon_guardado_prueba_1.txt"
 #define ARCHIVO_DE_PRUEBA_PARA_ESCRIBIR_2 "archivos_prueba/salon_guardado_prueba_2.txt"
 
@@ -685,6 +687,18 @@ void DadoSalonConTresEntrenadoresQueTienenBulbasaur_AlPedirListadoDeLosQueTengan
 
 //////////// COMANDO EQUIPO ////////////
 
+
+void DadoSalonConVariosEntrenadores_AlPedirEquipoSinArgumentoDeNombre_SeDevuelveNull(){
+
+    salon_t* salon = salon_leer_archivo(SALON_5E_INTEGRO_PARA_COMANDOS);
+    char* output = salon_ejecutar_comando(salon, "EQUIPO");
+
+    pa2m_afirmar( output==NULL , "Comando EQUIPO sin parametro de nombre devuelve NULL.");
+    salon_destruir(salon);
+
+}
+
+
 void DadoSalonConVariosEntrenadores_AlPedirEquipoDeEntrenadorQueNoEstaEnElSalon_SeDevuelveNull(){
 
     salon_t* salon = salon_leer_archivo(SALON_5E_INTEGRO_PARA_COMANDOS);
@@ -702,7 +716,7 @@ void DadoSalonConVariosEntrenadores_AlPedirEquipoDeEntrenadoresQueEstanEnElSalon
     char* output_1 = salon_ejecutar_comando(salon, "EQUIPO:Mauro");
     char* output_2 = salon_ejecutar_comando(salon, "EQUIPO:Sebastian");
     char* output_3 = salon_ejecutar_comando(salon, "EQUIPO:Miguel");
-    char* resultado_esperado_1 = "Pikachu,50,40,30,20,10\nRayquaza,99,80,80,80,80\n";
+    char* resultado_esperado_1 = "Pikachu,50,40,30,20,10\nRayquaza,99,80,80,80,80\nPiplup,80,40,40,40,40\n";
     char* resultado_esperado_2 = "Deoxys,50,20,30,40,50\n";
     char* resultado_esperado_3 = "Bulbasaur,50,40,40,40,40\nCharizard,50,50,50,50,50\n";
 
@@ -727,9 +741,8 @@ void DadoSalon_AlPedirReglas_StringDeOutputTieneTodasLasReglasCorrectamente(){
 
     salon_t* salon = salon_leer_archivo(SALON_5E_INTEGRO_PARA_COMANDOS);
     char* output = salon_ejecutar_comando(salon, COM_REGLAS);
-    char* resultado_esperado = "COMBATE CLASICO,Coeficiente de batalla: 0.8*nivel + fuerza + 2*velocidad\nCOMBATE MODERNO,Coeficiente de batalla: 0.5*nivel + 0.9*defensa + 3*inteligencia\nCOMBATE ACORAZADO,Coeficiente de batalla: (0.75*nivel + defensa)/velocidad\nCOMBATE FISICO,Coeficiente de batalla: (0.25*nivel + 0.8*fuerza - 0.1*inteligencia)*velocidad\nCOMBATE ELEGANTE,Coeficiente de batalla: (0.6*nivel + 0.7*velocidad)*inteligencia/defensa\n";
 
-    pa2m_afirmar( strcmp(output, resultado_esperado)==0 , "Comando REGLAS devuelve todas las reglas de batalla correctamente.")
+    pa2m_afirmar( strcmp(output, REGLAS_CONCATENADAS_EN_FORMATO)==0 , "Comando REGLAS devuelve todas las reglas de batalla correctamente.")
 
     free(output);
     salon_destruir(salon);
@@ -739,17 +752,97 @@ void DadoSalon_AlPedirReglas_StringDeOutputTieneTodasLasReglasCorrectamente(){
 
 
 //////////// COMANDO COMPARAR ////////////
-/*
-void Dado_Si_Se(){
 
+void DadoSalon_AlIntentarCompararConArgumentosInvalidos_SeDevuelveNull(){
 
+    salon_t* salon = salon_leer_archivo(SALON_5E_INTEGRO_PARA_COMANDOS);
+
+    pa2m_afirmar( salon_ejecutar_comando(salon, "COMPARAR")==NULL, "Comando COMPARAR por si solo devuelve NULL.");
+    pa2m_afirmar( salon_ejecutar_comando(salon, "COMPARAR:Miguel,Mauro,ReglaInvalida")==NULL, "Comando COMPARAR con una regla de batalla inválida devuelve NULL.");
+    pa2m_afirmar( salon_ejecutar_comando(salon, "COMPARAR:")==NULL, "Comando COMPARAR: por si solo devuelve NULL.");
+    pa2m_afirmar( salon_ejecutar_comando(salon, "COMPARAR:cosa1,cosa2,cosa3,cosa4")==NULL, "Comando COMPARAR:cosa1,cosa2,cosa3,cosa4 devuelve NULL.");
+    pa2m_afirmar( salon_ejecutar_comando(salon, "COMPARAR:algo2")==NULL, "Comando COMPARAR:algo2 devuelve NULL.");
+    pa2m_afirmar( salon_ejecutar_comando(salon, "COMPARAR:hola,")==NULL, "Comando COMPARAR:hola, devuelve NULL.");
+    pa2m_afirmar( salon_ejecutar_comando(salon, "COMPARAR:abc,def,")==NULL, "Comando COMPARAR:abc,def, devuelve NULL.");
+
+    salon_destruir(salon);
 
 }
 
 
-//void Dado_Si_Se(){
+void DadoSalon_AlIntentarCompararEntrenadoresQueNoEstanEnElMismo_SeDevuelveNull(){
+
+    salon_t* salon = salon_leer_archivo(SALON_5E_INTEGRO_PARA_COMANDOS);
+
+    pa2m_afirmar( salon_ejecutar_comando(salon, "COMPARAR:EntrenadorFalso1,EntrenadorFalso2,CLASICO")==NULL, "Comando COMPARAR de dos entrenadores que no están en el salón devuelve NULL.");
+    pa2m_afirmar( salon_ejecutar_comando(salon, "COMPARAR:EntrenadorFalso,Miguel,CLASICO")==NULL, "Comando COMPARAR con un solo entrenador que no está en el salón devuelve NULL (en el parametro 1).");
+    pa2m_afirmar( salon_ejecutar_comando(salon, "COMPARAR:Miguel,EntrenadorFalso,CLASICO")==NULL, "Comando COMPARAR con un solo entrenador que no está en el salón devuelve NULL (en el parametro 2).");
+
+    salon_destruir(salon);
+
+}
 
 
+
+void DadoSalon_AlCompararEntrenadoresQueEstanEnElMismo_SeDevuelveResultadoDeBatallasCorrecto(){
+
+    salon_t* salon = salon_leer_archivo(SALON_5E_INTEGRO_PARA_COMANDOS);
+
+    char* output = salon_ejecutar_comando(salon, "COMPARAR:Miguel,Mauro,CLASICO");
+    char* resultado_esperado = "1\n2\n2\n";
+    pa2m_afirmar( strcmp(output, resultado_esperado)==0 , "Comando COMPARAR:Miguel,Mauro,CLASICO devuelve resultados esperados.");
+    free(output);
+
+
+    output = salon_ejecutar_comando(salon, "COMPARAR:Miguel,Mauro,MODERNO");
+    resultado_esperado = "1\n2\n2\n";
+    pa2m_afirmar( strcmp(output, resultado_esperado)==0 , "Comando COMPARAR:Miguel,Mauro,MODERNO devuelve resultados esperados.");
+    free(output);
+
+
+    output = salon_ejecutar_comando(salon, "COMPARAR:Miguel,Mauro,RESISTENTE");
+    resultado_esperado = "2\n2\n";
+    pa2m_afirmar( strcmp(output, resultado_esperado)==0 , "Comando COMPARAR:Miguel,Mauro,RESISTENTE devuelve resultados esperados.");
+    free(output);
+
+
+    output = salon_ejecutar_comando(salon, "COMPARAR:Francisco,Sebastian,CLASICO");
+    resultado_esperado = "1\n";
+    pa2m_afirmar( strcmp(output, resultado_esperado)==0 , "Comando COMPARAR:Francisco,Sebastian,CLASICO devuelve resultados esperados.");
+    free(output);
+
+
+    output = salon_ejecutar_comando(salon, "COMPARAR:Francisco,Sebastian,MODERNO");
+    resultado_esperado = "1\n";
+    pa2m_afirmar( strcmp(output, resultado_esperado)==0 , "Comando COMPARAR:Francisco,Sebastian,MODERNO devuelve resultados esperados.");
+    free(output);
+
+
+    output = salon_ejecutar_comando(salon, "COMPARAR:Francisco,Sebastian,FISICO");
+    resultado_esperado = "1\n";
+    pa2m_afirmar( strcmp(output, resultado_esperado)==0 , "Comando COMPARAR:Francisco,Sebastian,FISICO devuelve resultados esperados.");
+    free(output);
+
+
+    output = salon_ejecutar_comando(salon, "COMPARAR:Mauro,Luis,CLASICO");
+    resultado_esperado = "2\n1\n1\n1\n";
+    pa2m_afirmar(strcmp(output, resultado_esperado)==0  , "Comando COMPARAR:Mauro,Luis,CLASICO devuelve resultados esperados.");
+    free(output);
+
+
+    output = salon_ejecutar_comando(salon, "COMPARAR:Mauro,Luis,MODERNO");
+    resultado_esperado = "2\n1\n1\n1\n";
+    pa2m_afirmar( strcmp(output, resultado_esperado)==0 , "Comando COMPARAR:Mauro,Luis,MODERNO devuelve resultados esperados.");
+    free(output);
+
+
+    output = salon_ejecutar_comando(salon, "COMPARAR:Mauro,Luis,ELEGANTE");
+    resultado_esperado = "2\n1\n1\n1\n";
+    pa2m_afirmar( strcmp(output, resultado_esperado)==0 , "Comando COMPARAR:Mauro,Luis,ELEGANTE devuelve resultados esperados.");
+    free(output);
+
+
+    salon_destruir(salon);
 
     printf("\n");
 
@@ -758,70 +851,169 @@ void Dado_Si_Se(){
 
 
 
-//////////// COMANDO AGREGAR_POKEMON ////////////
 
-void Dado_Si_Se(){
+//////////// COMANDOS AGREGAR_POKEMON Y QUITAR_POKEMON ////////////
 
+void DadoSalon_AlIntentarAgregarOQuitarPokemonConArgumentosInvalidos_SeDevuelveNull(){
 
+    salon_t* salon = salon_leer_archivo(SALON_5E_INTEGRO_PARA_COMANDOS);
+
+    pa2m_afirmar( salon_ejecutar_comando(salon, "AGREGAR_POKEMON")==NULL , "Comando AGREGAR_POKEMON sin argumentos adicionales devuelve NULL.");
+    pa2m_afirmar( salon_ejecutar_comando(salon, "AGREGAR_POKEMON:1,2,holamundo,abcd,5")==NULL , "Comando AGREGAR_POKEMON:1,2,holamundo,abcd,5  devuelve NULL.");
+    pa2m_afirmar( salon_ejecutar_comando(salon, "QUITAR_POKEMON")==NULL , "Comando QUITAR_POKEMON sin argumentos adicionales devuelve NULL.");
+    pa2m_afirmar( salon_ejecutar_comando(salon, "QUITAR_POKEMON:kasjdklj,123,kjds,")==NULL , "Comando QUITAR_POKEMON:kasjdklj,123,kjds,  devuelve NULL.");
+
+    pa2m_afirmar( salon_ejecutar_comando(salon, "AGREGAR_POKEMON:entrenadorfalso,pokeagregado,5,4,3,2,1")==NULL , "Comando AGREGAR_POKEMON de entrenador que no existe en el salón devuelve NULL.");
+    pa2m_afirmar( salon_ejecutar_comando(salon, "QUITAR_POKEMON:entrenadorfalso,Mew")==NULL , "Comando QUITAR_POKEMON de entrenador que no existe en el salón devuelve NULL.");
+    pa2m_afirmar( salon_ejecutar_comando(salon, "QUITAR_POKEMON:Sebastian,Mew")==NULL , "Comando QUITAR_POKEMON de entrenador que no tiene al pokemon pedido a quitar devuelve NULL.");
+
+    salon_destruir(salon);
 
 }
 
 
-//void Dado_Si_Se(){
+void DadoSalon_AlIntentarQuitarDeEntrenadorCon1Pokemon_SeDevuelveNull(){
+
+    salon_t* salon = salon_leer_archivo(SALON_5E_INTEGRO_PARA_COMANDOS);
+
+    pa2m_afirmar( salon_ejecutar_comando(salon, "QUITAR_POKEMON:Sebastian,Deoxys")==NULL , "Comando QUITAR_POKEMON de entrenador que solo tiene un pokemon restante devuelve NULL.");
+
+    salon_destruir(salon);
+
+}
 
 
+void DadoSalon_AlAgregarYQuitarPokemonesVarios_SalonSeVeModificadoCorrectamente(){
+
+    salon_t* salon = salon_leer_archivo(SALON_5E_INTEGRO_PARA_COMANDOS);
+
+    char* output = salon_ejecutar_comando(salon, "AGREGAR_POKEMON:Sebastian,Roselia,10,20,30,40,50");
+    char* resultado_esperado = "OK";
+
+
+    pa2m_afirmar( strcmp(output, resultado_esperado)==0 , "Comando AGREGAR_POKEMON:Sebastian,Roselia,10,20,30,40,50  devolvió OK.");
+    char* equipo_resultante = salon_ejecutar_comando(salon, "EQUIPO:Sebastian");
+    resultado_esperado = "Deoxys,50,20,30,40,50\nRoselia,10,20,30,40,50\n";
+    pa2m_afirmar( strcmp(equipo_resultante, resultado_esperado)==0 , "El equipo del entrenador tras agregar fue correctamente modificado.");
+    free(output);
+    free(equipo_resultante);
+
+
+    output = salon_ejecutar_comando(salon, "AGREGAR_POKEMON:Sebastian,Beedrill,10,10,10,10,10");
+    resultado_esperado = "OK";
+    pa2m_afirmar( strcmp(output, resultado_esperado)==0 , "Comando AGREGAR_POKEMON:Sebastian,Beedrill,10,10,10,10,10  devolvió OK.");
+    equipo_resultante = salon_ejecutar_comando(salon, "EQUIPO:Sebastian");
+    resultado_esperado = "Deoxys,50,20,30,40,50\nRoselia,10,20,30,40,50\nBeedrill,10,10,10,10,10\n";
+    pa2m_afirmar( strcmp(equipo_resultante, resultado_esperado)==0 , "El equipo del entrenador tras agregar fue correctamente modificado.");
+    free(output);
+    free(equipo_resultante);
+
+
+    output = salon_ejecutar_comando(salon, "QUITAR_POKEMON:Sebastian,Beedrill");
+    resultado_esperado = "OK";
+    pa2m_afirmar( strcmp(output, resultado_esperado)==0 , "Comando QUITAR_POKEMON:Sebastian,Beedrill  devolvió OK.");
+    equipo_resultante = salon_ejecutar_comando(salon, "EQUIPO:Sebastian");
+    resultado_esperado = "Deoxys,50,20,30,40,50\nRoselia,10,20,30,40,50\n";
+    pa2m_afirmar( strcmp(equipo_resultante, resultado_esperado)==0 , "El equipo del entrenador tras quitar el recién agregado fue correctamente modificado.");
+    free(output);
+    free(equipo_resultante);
+
+
+    output = salon_ejecutar_comando(salon, "QUITAR_POKEMON:Sebastian,Deoxys");
+    resultado_esperado = "OK";
+    pa2m_afirmar( strcmp(output, resultado_esperado)==0 , "Comando QUITAR_POKEMON:Sebastian,Deoxys  devolvió OK.");
+    equipo_resultante = salon_ejecutar_comando(salon, "EQUIPO:Sebastian");
+    resultado_esperado = "Roselia,10,20,30,40,50\n";
+    pa2m_afirmar( strcmp(equipo_resultante, resultado_esperado)==0 , "El equipo del entrenador tras quitar el primer pokemon del equipo fue correctamente modificado.");
+    free(output);
+    free(equipo_resultante);
+
+
+    output = salon_ejecutar_comando(salon, "QUITAR_POKEMON:Francisco,Bulbasaur");
+    resultado_esperado = "OK";
+    pa2m_afirmar( strcmp(output, resultado_esperado)==0 , "Comando QUITAR_POKEMON:Francisco,Bulbasaur  devolvió OK.");
+    equipo_resultante = salon_ejecutar_comando(salon, "EQUIPO:Francisco");
+    resultado_esperado = "Groudon,90,90,90,90,90\nKyogre,80,80,80,80,80\n";
+    pa2m_afirmar( strcmp(equipo_resultante, resultado_esperado)==0 , "El equipo del entrenador tras quitar un pokemon en posición intermadia del equipo fue correctamente modificado.");
+    free(output);
+    free(equipo_resultante);
+
+
+    output = salon_ejecutar_comando(salon, "QUITAR_POKEMON:Francisco,Kyogre");
+    resultado_esperado = "OK";
+    pa2m_afirmar( strcmp(output, resultado_esperado)==0 , "Comando QUITAR_POKEMON:Francisco,Kyogre  devolvió OK.");
+    equipo_resultante = salon_ejecutar_comando(salon, "EQUIPO:Francisco");
+    resultado_esperado = "Groudon,90,90,90,90,90\n";
+    pa2m_afirmar( strcmp(equipo_resultante, resultado_esperado)==0 , "El equipo del entrenador tras quitar un pokemon en posición final del equipo fue correctamente modificado.");
+    free(output);
+    free(equipo_resultante);
+
+
+    salon_destruir(salon);
 
     printf("\n");
 
 }
-
-
-
-//////////// COMANDO QUITAR_POKEMON ////////////
-
-void Dado_Si_Se(){
-
-
-
-}
-
-
-void Dado_Si_Se(){
-
-
-
-    printf("\n");
-
-}
-
 
 
 
 //////////// COMANDO GUARDAR ////////////
 
-void Dado_Si_Se(){
+void DadoSalon_AlIntentarGuardarConComandoConArgumentosInvalidos_SeDevuelveNull(){
 
+    salon_t* salon = salon_leer_archivo(SALON_5E_INTEGRO_PARA_COMANDOS);
 
+    pa2m_afirmar( salon_ejecutar_comando(salon, "GUARDAR")==NULL , "Comando GUARDAR sin argumentos adicionales devuelve NULL.");
+    pa2m_afirmar( salon_ejecutar_comando(salon, "GUARDAR:1,2,3")==NULL , "Comando GUARDAR:1,2,3  devuelve NULL.");
+    pa2m_afirmar( salon_ejecutar_comando(salon, "GUARDAR:nombre_y_coma_extra,")==NULL , "Comando GUARDAR :nombre_y_coma_extra,  devuelve NULL.");
+    pa2m_afirmar( salon_ejecutar_comando(salon, "GUARDAR:a,b")==NULL , "Comando GUARDAR:a,b devuelve NULL.");
+    
+    salon_destruir(salon);
 
 }
 
 
-//void Dado_Si_Se(){
+void DadoSalon_AlGuardarConComandoConNombreCualquieraDeArchivo_SePuedeGuardarCorrectamente(){
 
+    salon_t* salon = salon_leer_archivo(SALON_5E_INTEGRO_PARA_COMANDOS);
 
+    char* output = NULL;
+    char* resultado_esperado = "OK";
+
+    output = salon_ejecutar_comando(salon, "AGREGAR_POKEMON:Sebastian,Roselia,10,20,30,40,50");
+    free(output);
+
+    output = salon_ejecutar_comando(salon, "AGREGAR_POKEMON:Sebastian,Beedrill,10,10,10,10,10");
+    free(output);
+
+    output = salon_ejecutar_comando(salon, "QUITAR_POKEMON:Sebastian,Beedrill");
+    free(output);
+
+    output = salon_ejecutar_comando(salon, "QUITAR_POKEMON:Sebastian,Deoxys");
+    free(output);
+
+    output = salon_ejecutar_comando(salon, "QUITAR_POKEMON:Mauro,Rayquaza");
+    free(output);
+
+    output = salon_ejecutar_comando(salon, "QUITAR_POKEMON:Miguel,Bulbasaur");
+    free(output);
+
+    output = salon_ejecutar_comando(salon, "AGREGAR_POKEMON:Francisco,Politoed,1,2,3,4,5");
+    free(output);
+
+    output = salon_ejecutar_comando(salon, "GUARDAR:archivos_prueba/salon_5e_modificado_con_comandos.txt");
+    pa2m_afirmar( strcmp(output, resultado_esperado)==0 , "Se pudo guardar archivo con comando GUARDAR en base a un archivo modificado con comandos (de agregar/quitar pokemon).");
+    free(output);
+
+    salon_t* salon_modificado = salon_leer_archivo("archivos_prueba/salon_5e_modificado_con_comandos.txt");
+    pa2m_afirmar( salon_modificado != NULL , "El salon guardado se puede leer.");
+
+    salon_destruir(salon_modificado);
+    salon_destruir(salon);
 
     printf("\n");
 
 }
-*/
-
-
-
-
-
-
-
-
 
 
 
@@ -924,6 +1116,7 @@ int main(){
 
         pa2m_nuevo_grupo("Pruebas de comando EQUIPO");
 
+            DadoSalonConVariosEntrenadores_AlPedirEquipoSinArgumentoDeNombre_SeDevuelveNull();
             DadoSalonConVariosEntrenadores_AlPedirEquipoDeEntrenadorQueNoEstaEnElSalon_SeDevuelveNull();
             DadoSalonConVariosEntrenadores_AlPedirEquipoDeEntrenadoresQueEstanEnElSalon_StringsDeOutputTienenLosEquiposEnOrdenCorrectamente();
             
@@ -933,39 +1126,22 @@ int main(){
 
         pa2m_nuevo_grupo("Pruebas de comando COMPARAR");
 
-            /*
-            Dado_Si_Se();
-            Dado_Si_Se();
-            Dado_Si_Se();
-            Dado_Si_Se();
-            */
+            DadoSalon_AlIntentarCompararConArgumentosInvalidos_SeDevuelveNull();
+            DadoSalon_AlIntentarCompararEntrenadoresQueNoEstanEnElMismo_SeDevuelveNull();
+            DadoSalon_AlCompararEntrenadoresQueEstanEnElMismo_SeDevuelveResultadoDeBatallasCorrecto();
 
-        pa2m_nuevo_grupo("Pruebas de comando AGREGAR_POKEMON");
-
-            /*
-            Dado_Si_Se();
-            Dado_Si_Se();
-            Dado_Si_Se();
-            Dado_Si_Se();
-            */
-
-        pa2m_nuevo_grupo("Pruebas de comando QUITAR_POKEMON");
-
-            /*
-            Dado_Si_Se();
-            Dado_Si_Se();
-            Dado_Si_Se();
-            Dado_Si_Se();
-            */
+        pa2m_nuevo_grupo("Pruebas de comando AGREGAR_POKEMON Y QUITAR_POKEMON");
+            
+            DadoSalon_AlIntentarAgregarOQuitarPokemonConArgumentosInvalidos_SeDevuelveNull();
+            DadoSalon_AlIntentarQuitarDeEntrenadorCon1Pokemon_SeDevuelveNull();
+            DadoSalon_AlAgregarYQuitarPokemonesVarios_SalonSeVeModificadoCorrectamente();            
 
         pa2m_nuevo_grupo("Pruebas de comando GUARDAR");
+            
+            DadoSalon_AlIntentarGuardarConComandoConArgumentosInvalidos_SeDevuelveNull();
+            DadoSalon_AlGuardarConComandoConNombreCualquieraDeArchivo_SePuedeGuardarCorrectamente();
 
-            /*
-            Dado_Si_Se();
-            Dado_Si_Se();
-            Dado_Si_Se();
-            Dado_Si_Se();
-            */
+            
 
 /*
         pa2m_nuevo_grupo("Pruebas de");

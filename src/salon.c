@@ -5,13 +5,20 @@
 #include "util.h"
 #include "hash.h"
 
-const char* REGLA_CLASICA = "COMBATE CLASICO,Coeficiente de batalla: 0.8*nivel + fuerza + 2*velocidad";
-const char* REGLA_MODERNA = "COMBATE MODERNO,Coeficiente de batalla: 0.5*nivel + 0.9*defensa + 3*inteligencia";
-const char* REGLA_RESISTENCIA = "COMBATE ACORAZADO,Coeficiente de batalla: (0.75*nivel + defensa)/velocidad";
-const char* REGLA_FISICA = "COMBATE FISICO,Coeficiente de batalla: (0.25*nivel + 0.8*fuerza - 0.1*inteligencia)*velocidad";
-const char* REGLA_ELEGANCIA = "COMBATE ELEGANTE,Coeficiente de batalla: (0.6*nivel + 0.7*velocidad)*inteligencia/defensa";
+const char* REGLA_CLASICA = "CLASICO,Coeficiente de batalla: 0.8*nivel + fuerza + 2*velocidad";
+const char* REGLA_CLASICA_NOMBRE = "CLASICO";
 
-const char* REGLAS_CONCATENADAS_EN_FORMATO = "COMBATE CLASICO,Coeficiente de batalla: 0.8*nivel + fuerza + 2*velocidad\nCOMBATE MODERNO,Coeficiente de batalla: 0.5*nivel + 0.9*defensa + 3*inteligencia\nCOMBATE ACORAZADO,Coeficiente de batalla: (0.75*nivel + defensa)/velocidad\nCOMBATE FISICO,Coeficiente de batalla: (0.25*nivel + 0.8*fuerza - 0.1*inteligencia)*velocidad\nCOMBATE ELEGANTE,Coeficiente de batalla: (0.6*nivel + 0.7*velocidad)*inteligencia/defensa\n";
+const char* REGLA_MODERNA = "MODERNO,Coeficiente de batalla: 0.5*nivel + 0.9*defensa + 3*inteligencia";
+const char* REGLA_MODERNA_NOMBRE = "MODERNO";
+
+const char* REGLA_RESISTENCIA = "RESISTENTE,Coeficiente de batalla: (0.75*nivel + defensa)/velocidad";
+const char* REGLA_RESISTENCIA_NOMBRE = "RESISTENTE";
+
+const char* REGLA_FISICA = "FISICO,Coeficiente de batalla: (0.25*nivel + 0.8*fuerza - 0.1*inteligencia)*velocidad";
+const char* REGLA_FISICA_NOMBRE = "FISICO";
+
+const char* REGLA_ELEGANCIA = "ELEGANTE,Coeficiente de batalla: (0.6*nivel + 0.7*velocidad)*inteligencia/defensa";
+const char* REGLA_ELEGANCIA_NOMBRE = "ELEGANTE";
 
 #define SALTO_DE_LINEA "\n"
 const char SEPARADOR_PARAMETROS_COMANDO = ',';
@@ -48,8 +55,6 @@ struct _salon_t{
     size_t cantidad_entrenadores;
     hash_t* comandos_predeterminados;
 };
-
-
 
 
 /**
@@ -98,6 +103,10 @@ void comando_destruir(void* comando){
     comando = NULL;
 
 }
+
+
+
+
 
 
 
@@ -157,8 +166,8 @@ char* procesar_parametro_final_entrenador(salon_t* salon, bool (*filtro)(entrena
         return string_resultante;
     }
 
-    size_t cantidad_nombres_a_concatenar = lista_elementos(entrenadores_filtrados);
-    char* nombres_a_concatenar[cantidad_nombres_a_concatenar];
+    size_t cantidad_info_a_concatenar = lista_elementos(entrenadores_filtrados);
+    char* info_a_concatenar[cantidad_info_a_concatenar];
 
     lista_iterador_t* iter_entrenadores = lista_iterador_crear(entrenadores_filtrados);
     int i = 0;
@@ -168,8 +177,8 @@ char* procesar_parametro_final_entrenador(salon_t* salon, bool (*filtro)(entrena
 
         entrenador_actual = lista_iterador_elemento_actual(iter_entrenadores);
 
-        nombres_a_concatenar[i] = entrenador_obtener_nombre(entrenador_actual);
-        if(nombres_a_concatenar[i]==NULL){
+        info_a_concatenar[i] = entrenador_obtener_nombre(entrenador_actual);
+        if(info_a_concatenar[i]==NULL){
             fallo_en_obtencion = true;
         }
 
@@ -182,14 +191,14 @@ char* procesar_parametro_final_entrenador(salon_t* salon, bool (*filtro)(entrena
         return NULL;
     }
 
-    string_resultante = recopilacion_y_formateo_de_strings(nombres_a_concatenar, cantidad_nombres_a_concatenar);
+    string_resultante = recopilacion_y_formateo_de_strings(info_a_concatenar, cantidad_info_a_concatenar);
     if(!string_resultante){
-        liberar_strings_recolectados(nombres_a_concatenar, cantidad_nombres_a_concatenar);
+        liberar_strings_recolectados(info_a_concatenar, cantidad_info_a_concatenar);
         lista_destruir(entrenadores_filtrados);
         return NULL;
     }
 
-    liberar_strings_recolectados(nombres_a_concatenar, cantidad_nombres_a_concatenar);
+    liberar_strings_recolectados(info_a_concatenar, cantidad_info_a_concatenar);
     lista_destruir(entrenadores_filtrados);
 
     return string_resultante;
@@ -273,13 +282,75 @@ char* salon_pedir_entrenadores_listados(salon_t* salon, char** argumentos){
 }
 
 /**
+ * Busca linealmente un entrenador del vector de punteros a entrenadores a partir de su nombre.
+ * Devuelve al entrenador buscado o NULL en caso de error.
+*/
+entrenador_t* buscar_entrenador_con_nombre(char* nombre_entrenador_pedido, entrenador_t** vector_entrenadores, size_t tamanio_vector){
+    
+    size_t i = 0;
+    bool fallo_en_obtencion = false , fue_encontrado_entrenador = false;
+    char* auxiliar_nombre_actual = NULL;
+    entrenador_t* entrenador_encontrado = NULL;
+    while((i < tamanio_vector) && !fallo_en_obtencion && !fue_encontrado_entrenador){
+
+        auxiliar_nombre_actual = entrenador_obtener_nombre(vector_entrenadores[i]);
+
+        if(!auxiliar_nombre_actual){
+            fallo_en_obtencion = true;
+        }
+        else if(strcmp(auxiliar_nombre_actual, nombre_entrenador_pedido)==0){
+            fue_encontrado_entrenador = true;
+            entrenador_encontrado = vector_entrenadores[i];      
+        }
+
+        i++;
+        free(auxiliar_nombre_actual);
+
+    }
+    if(fallo_en_obtencion){
+        return NULL;
+    }
+
+    return entrenador_encontrado;
+
+}
+
+/**
  * Recibe argumentos relacionados al comando EQUIPO y un salon (ya inicializado).
  * Ejecuta la solicitud que posean los argumentos y devuelve un string de output con el equipo pokemon
  * de un entrenador determinado.
 */
 char* salon_pedir_equipo_de_entrenador(salon_t* salon, char** argumentos){
 
-    return NULL;
+    if(vtrlen(argumentos) != 2){
+        return NULL;
+    }
+
+    char* nombre_entrenador_pedido = argumentos[1];
+    char* string_resultado = NULL;
+
+    entrenador_t* vector_entrenadores[salon->cantidad_entrenadores];
+    arbol_recorrido_inorden(salon->abb_entrenadores, (void**)vector_entrenadores, salon->cantidad_entrenadores);
+
+    entrenador_t* entrenador_buscado = buscar_entrenador_con_nombre(nombre_entrenador_pedido, vector_entrenadores, salon->cantidad_entrenadores);
+    if(!entrenador_buscado){
+        return NULL;
+    }
+   
+    string_resultado = entrenador_obtener_equipo_concatenado(entrenador_buscado);
+    
+    return string_resultado;
+
+}
+
+
+/**
+ * Calcula la memoria necesaria para reservar un string con todas las reglas concatenadas del salon.
+ * Devuelve el calculo realizado.
+*/
+size_t calcular_memoria_para_reglas(){
+
+    return (strlen(REGLA_CLASICA)+strlen(REGLA_MODERNA)+strlen(REGLA_RESISTENCIA)+strlen(REGLA_FISICA)+strlen(REGLA_ELEGANCIA) + 6); // +5 para los \n al concatenar y +1 para el \0.
 
 }
 
@@ -290,15 +361,43 @@ char* salon_pedir_equipo_de_entrenador(salon_t* salon, char** argumentos){
 */
 char* salon_pedir_reglas(salon_t* salon, char** argumentos){
 
-    size_t memoria_requerida = strlen(REGLAS_CONCATENADAS_EN_FORMATO) + 1;
+    if(vtrlen(argumentos)!=1){
+        return NULL;
+    }
 
-    char* string_resultado = malloc(memoria_requerida*sizeof(char));
+    size_t tamanio_requerido = calcular_memoria_para_reglas();
+
+    char* string_resultado = malloc(tamanio_requerido*sizeof(char));
     if(!string_resultado){
         return NULL;
     }
-    strcpy(string_resultado, REGLAS_CONCATENADAS_EN_FORMATO);
+    strcpy(string_resultado, REGLA_CLASICA);
+    strcat(string_resultado, SALTO_DE_LINEA);
+    strcat(string_resultado, REGLA_MODERNA);
+    strcat(string_resultado, SALTO_DE_LINEA);
+    strcat(string_resultado, REGLA_RESISTENCIA);
+    strcat(string_resultado, SALTO_DE_LINEA);
+    strcat(string_resultado, REGLA_FISICA);
+    strcat(string_resultado, SALTO_DE_LINEA);
+    strcat(string_resultado, REGLA_ELEGANCIA);
+    strcat(string_resultado, SALTO_DE_LINEA);
+
+    string_resultado[tamanio_requerido-1] = '\0';
 
     return string_resultado;
+
+}
+
+/**
+ * Recibe el nombre de una regla pedida por argumento de comando.
+ * Devuelve true si la relga NO está dentro de las disponibles para comparar entrenadores.
+ * Devuelve false en caso contrario.
+*/
+bool regla_dada_no_existe(char* regla_pedida){
+
+    bool es_inexistente = !(strcmp(regla_pedida, REGLA_CLASICA_NOMBRE)==0 || strcmp(regla_pedida, REGLA_MODERNA_NOMBRE)==0 || strcmp(regla_pedida, REGLA_RESISTENCIA_NOMBRE)==0 || strcmp(regla_pedida, REGLA_FISICA_NOMBRE)==0 || strcmp(regla_pedida, REGLA_ELEGANCIA_NOMBRE)==0);
+
+    return es_inexistente;
 
 }
 
@@ -309,7 +408,39 @@ char* salon_pedir_reglas(salon_t* salon, char** argumentos){
 */
 char* salon_comparar_entrenadores(salon_t* salon, char** argumentos){
 
-    return NULL;
+    if(vtrlen(argumentos) != 2){
+        return NULL;
+    }
+
+    char** parametros_a_procesar = split(argumentos[1], SEPARADOR_PARAMETROS_COMANDO);
+    if(vtrlen(parametros_a_procesar) != 3){
+        vtrfree(parametros_a_procesar);
+        return NULL;
+    }
+    else if(regla_dada_no_existe(parametros_a_procesar[2])){
+        vtrfree(parametros_a_procesar);
+        return NULL;
+    }
+
+    entrenador_t* vector_entrenadores[salon->cantidad_entrenadores];
+    arbol_recorrido_inorden(salon->abb_entrenadores, (void**)vector_entrenadores, salon->cantidad_entrenadores);
+
+    entrenador_t* entrenador_buscado_1 = buscar_entrenador_con_nombre(parametros_a_procesar[0], vector_entrenadores, salon->cantidad_entrenadores);
+    if(!entrenador_buscado_1){
+        vtrfree(parametros_a_procesar);
+        return NULL;
+    }
+    entrenador_t* entrenador_buscado_2 = buscar_entrenador_con_nombre(parametros_a_procesar[1], vector_entrenadores, salon->cantidad_entrenadores);
+    if(!entrenador_buscado_2){
+        vtrfree(parametros_a_procesar);
+        return NULL;
+    }
+
+    char* resultados_enfrentamiento = entrenador_enfrentar(entrenador_buscado_1, entrenador_buscado_2, parametros_a_procesar[2]);
+
+    vtrfree(parametros_a_procesar);
+
+    return resultados_enfrentamiento;
 
 }
 

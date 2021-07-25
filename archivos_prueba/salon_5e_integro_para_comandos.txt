@@ -4,6 +4,7 @@ Charizard;50;50;50;50;50
 Mauro;10
 Pikachu;50;40;30;20;10
 Rayquaza;99;80;80;80;80
+Piplup;80;40;40;40;40
 Francisco;50
 Groudon;90;90;90;90;90
 Bulbasaur;50;40;40;40;40

@@ -76,11 +76,13 @@ int entrenador_comparar_nombres(void* entrenador_1, void* entrenador_2);
 /**
  * Compara los equipos de dos entrenadores pokemon por pokemon según
  * la regla de batalla recibida.
- * Devuelve un vector de strings con
- * los resultados de cada enfrentamiento por separado.
+ * Devuelve un string con los resultados de cada enfrentamiento por
+ * separado (separados con "\n").
+ * (Debe recibir dos entrenadores no NULL y haberse verificado que existe
+ * la regla de batalla anteriormente).
  * Devuelve NULL en caso de error.
 */
-char** entrenador_enfrentar(entrenador_t* entrenador_1, entrenador_t* entrenador_2 , char* regla_de_batalla);
+char* entrenador_enfrentar(entrenador_t* entrenador_1, entrenador_t* entrenador_2 , char* regla_de_batalla);
 
 
 /**
@@ -97,6 +99,14 @@ entrenador_t* entrenador_quitar_pokemon(entrenador_t* entrenador, char* nombre_p
 */
 char* entrenador_obtener_nombre(entrenador_t* entrenador);
 
+/**
+ * Devuelve un string con toda la información del equipo del 
+ * entrenador dado en el siguiente formato:
+ * "Nombre,Nivel,Defensa,Fuerza,Inteligencia,Velocidad\nNombre2..."
+ * (String devuelto a liberar con free).
+ * Devuelve NULL en caso de error.
+*/
+char* entrenador_obtener_equipo_concatenado(entrenador_t* entrenador);
 
 
 /**
