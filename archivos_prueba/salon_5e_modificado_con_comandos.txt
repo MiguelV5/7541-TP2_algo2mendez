@@ -1,0 +1,16 @@
+Francisco;50
+Groudon;90;90;90;90;90
+Bulbasaur;50;40;40;40;40
+Kyogre;80;80;80;80;80
+Politoed;1;2;3;4;5
+Luis;40
+Mew;50;50;50;50;50
+Meganium;50;50;50;50;50
+Bulbasaur;50;30;30;30;30
+Mauro;10
+Pikachu;50;40;30;20;10
+Piplup;80;40;40;40;40
+Miguel;20
+Charizard;50;50;50;50;50
+Sebastian;30
+Roselia;10;20;30;40;50

@@ -3,7 +3,6 @@
 #include "src/util.h"
 #include <string.h>
 
-
 #define FALLO -1
 #define EXITO 0
 
@@ -31,7 +30,7 @@ const char* REGLAS_CONCATENADAS_EN_FORMATO = "CLASICO,Coeficiente de batalla: 0.
 /**
  * Función de "destrucción" auxiliar de prueba.
  * Le suma uno al entero recibido
- * (Si bien solo aumenta un entero, basta para controlar que se aplicó un destructor a todos los elementos requeridos en vez de complicarse reservando memoria, por ejemplo).
+ * (Si bien solo aumenta un entero, basta para controlar que se aplicó un destructor a todos los elementos requeridos en vez de reservar memoria, por ejemplo).
 */
 void destructor_de_prueba_gracioso(void* elemento){
     int* entero = elemento;
@@ -219,7 +218,6 @@ void DadoArchivoCon1EntrenadorCon1Pokemon_AlLeerArchivo_SeCreaSalonCorrectamente
 }
 
 
-
 void DadoArchivoCon1EntrenadorSinPokemon_AlLeerArchivo_SeDevuelveNull(){
 
     pa2m_afirmar(salon_leer_archivo(SALON_1E_SIN_P)==NULL , "Leer un archivo con un entrenador sin pokemon devuelve NULL.");
@@ -227,7 +225,6 @@ void DadoArchivoCon1EntrenadorSinPokemon_AlLeerArchivo_SeDevuelveNull(){
     printf("\n");
 
 }
-
 
 
 void DadoArchivoCon2EntrenadoresCon2PokemonCadaUno_AlLeerArchivo_SeCreaSalonCorrectamente(){
@@ -242,7 +239,6 @@ void DadoArchivoCon2EntrenadoresCon2PokemonCadaUno_AlLeerArchivo_SeCreaSalonCorr
 }
 
 
-
 void DadoArchivoConVariosEntrenadoresConAlgunosDeEllosSinPokemones_AlLeerArchivo_SeDevuelveNull(){
 
     pa2m_afirmar(salon_leer_archivo(SALON_6E_ALGUNOS_SIN_P)==NULL , "Leer un archivo con varios entrenadores, de los cuales algunos NO tienen pokemon devuelve NULL.");
@@ -250,7 +246,6 @@ void DadoArchivoConVariosEntrenadoresConAlgunosDeEllosSinPokemones_AlLeerArchivo
     printf("\n");
 
 }
-
 
 
 void DadoArchivoCon2EntrenadoresConDistintaCantidadDePokemonesCadaUno_AlLeerArchivo_SeCreaSalonCorrectamente(){
@@ -263,7 +258,6 @@ void DadoArchivoCon2EntrenadoresConDistintaCantidadDePokemonesCadaUno_AlLeerArch
     printf("\n");
 
 }
-
 
 
 void DadoArchivoConDosEntrenadoresRepetidos_SiSeIntentaLeer_SeDevuelveNull(){
@@ -343,7 +337,6 @@ void DadosParametrosInvalidos_SiSePideGuardarArchivo_SeDevuelveFallo(){
 }
 
 
-
 void DadoSalonLeidoDeUnArchivoValido_SiSeGuardaEnArchivo_ElArchivoGuardadoEsIgualQueElOriginal(){
 
     salon_t* salon = salon_leer_archivo(SALON_2E_CON_P_EN_DISTINTA_CANTIDAD);
@@ -358,7 +351,6 @@ void DadoSalonLeidoDeUnArchivoValido_SiSeGuardaEnArchivo_ElArchivoGuardadoEsIgua
     printf("\n");
 
 }
-
 
 
 void DadosSalonesValidosEnGeneral_SiSeGuardanEnArchivos_SeGuardanTodosCorrectamente(){
@@ -397,7 +389,6 @@ void DadosSalonesValidosEnGeneral_SiSeGuardanEnArchivos_SeGuardanTodosCorrectame
 
 
 
-
 //////////// SALON_FILTRAR_ENTRENADORES ////////////
 
 void DadosParametrosInvalidos_SiSeIntentaFiltrar_SeDevuelveNull(){
@@ -413,7 +404,6 @@ void DadosParametrosInvalidos_SiSeIntentaFiltrar_SeDevuelveNull(){
     printf("\n");
 
 }
-
 
 
 void DadaFuncionDeFiltroQueSeCumpleParaTodoEntrenador_AlFiltrar_SeDevuelveListaConTodosLosEntrenadoresDelSalon(){
@@ -441,7 +431,6 @@ void DadaFuncionDeFiltroQueSeCumpleParaTodoEntrenador_AlFiltrar_SeDevuelveListaC
 }
 
 
-
 void DadaFuncionDeFiltroQueNoSeCumpleParaNingunEntrenador_AlFiltrar_SeDevuelveUnaListaVacia(){
 
     salon_t* salon = salon_leer_archivo(SALON_2E_CON_P_EN_DISTINTA_CANTIDAD);
@@ -457,7 +446,6 @@ void DadaFuncionDeFiltroQueNoSeCumpleParaNingunEntrenador_AlFiltrar_SeDevuelveUn
     printf("\n");
 
 }
-
 
 
 void DadaFuncionDeFiltroQueSeCumpleParaAlgunosEntrenadores_AlFiltrar_SeDevuelveListaConLosFiltrados(){
@@ -496,8 +484,6 @@ void DadaFuncionDeFiltroQueSeCumpleParaAlgunosEntrenadores_AlFiltrar_SeDevuelveL
 
 
 
-
-
 //===============================================================================//
 
 //////////// SALON_EJECUTAR_COMANDO ////////////
@@ -516,7 +502,6 @@ void DadosParametrosInvalidos_SiSeIntentaEjecutarComando_SeDevuelveNull(){
 }
 
 
-
 void DadoComandoNoConocido_SiSeIntentaEjecutarComando_SeDevuelveNull(){
 
     salon_t* salon = salon_leer_archivo(SALON_1E_1P);
@@ -526,7 +511,6 @@ void DadoComandoNoConocido_SiSeIntentaEjecutarComando_SeDevuelveNull(){
     salon_destruir(salon);
 
 }
-
 
 
 void DadoComandoConNombreConocidoPeroDeParametrosInvalidos_SiSeIntentaEjecutarComando_SeDevuelveNull(){
@@ -687,7 +671,6 @@ void DadoSalonConTresEntrenadoresQueTienenBulbasaur_AlPedirListadoDeLosQueTengan
 
 //////////// COMANDO EQUIPO ////////////
 
-
 void DadoSalonConVariosEntrenadores_AlPedirEquipoSinArgumentoDeNombre_SeDevuelveNull(){
 
     salon_t* salon = salon_leer_archivo(SALON_5E_INTEGRO_PARA_COMANDOS);
@@ -783,7 +766,6 @@ void DadoSalon_AlIntentarCompararEntrenadoresQueNoEstanEnElMismo_SeDevuelveNull(
 }
 
 
-
 void DadoSalon_AlCompararEntrenadoresQueEstanEnElMismo_SeDevuelveResultadoDeBatallasCorrecto(){
 
     salon_t* salon = salon_leer_archivo(SALON_5E_INTEGRO_PARA_COMANDOS);
@@ -847,8 +829,6 @@ void DadoSalon_AlCompararEntrenadoresQueEstanEnElMismo_SeDevuelveResultadoDeBata
     printf("\n");
 
 }
-
-
 
 
 
@@ -1017,23 +997,6 @@ void DadoSalon_AlGuardarConComandoConNombreCualquieraDeArchivo_SePuedeGuardarCor
 
 
 
-
-
-/*
-
-void Dado_Si_Se(){
-
-    
-
-    printf("\n");
-
-}
-
-*/
-
-
-
-
 int main(){
 
     pa2m_nuevo_grupo("//  PRUEBAS DE DESTRUCCIÓN DE ELEMENTOS EN LISTA  //"); //Debido a cambios efectuados en lista.h y lista.c (Ver README.txt).
@@ -1140,16 +1103,6 @@ int main(){
             
             DadoSalon_AlIntentarGuardarConComandoConArgumentosInvalidos_SeDevuelveNull();
             DadoSalon_AlGuardarConComandoConNombreCualquieraDeArchivo_SePuedeGuardarCorrectamente();
-
-            
-
-/*
-        pa2m_nuevo_grupo("Pruebas de");
-            Dado_Si_Se();
-
-        pa2m_nuevo_grupo("Pruebas de");
-            Dado_Si_Se();
-*/
 
     return pa2m_mostrar_reporte();
 }

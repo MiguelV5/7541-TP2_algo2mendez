@@ -57,6 +57,24 @@ struct _salon_t{
 };
 
 
+
+/**
+ * Devuelve un string (reservado en memoria) duplicado del str.
+ * Devuelve NULL si falla en reservarlo.
+*/
+char* duplicar_str(const char* str){
+
+    char* duplicado = malloc((1+strlen(str))*sizeof(char));
+    if(!duplicado){
+        return NULL;
+    }
+
+    strcpy(duplicado, str);
+    return duplicado;
+
+}
+
+
 /**
  * Crea un comando a partir de:
  *  - El string con el que se desea identificar el mismo al momento de
@@ -382,8 +400,6 @@ char* salon_pedir_reglas(salon_t* salon, char** argumentos){
     strcat(string_resultado, REGLA_ELEGANCIA);
     strcat(string_resultado, SALTO_DE_LINEA);
 
-    string_resultado[tamanio_requerido-1] = '\0';
-
     return string_resultado;
 
 }
@@ -445,13 +461,86 @@ char* salon_comparar_entrenadores(salon_t* salon, char** argumentos){
 }
 
 /**
+ * Duplica los strings que se tenían en los 'parametros_a_procesar' que correspondian a la información
+ * de los campos de un pokemon y crea un vector dinámico de punteros finalizado en NULL almacenando los
+ * strings duplicados.
+ * Devuelve el vector creado o NULL en caso de error.
+ * El vector devuelto debe ser liberado con vtrfree.
+*/
+char** duplicar_parametros_pokemon(char** parametros_a_procesar){
+
+    char** parametros_pokemon = NULL;
+    char* vector_strings_auxiliar[6];
+    size_t duplicados_hasta_el_momento = 0;
+    bool hubo_fallo = false;
+
+    for(int i = 1; (i <= 6) && !hubo_fallo ; i++){ // 6 es la cantidad de campos de un pokemon, parametros_a_procesar[0] es el nombre de entrenador.
+        
+        vector_strings_auxiliar[i-1] = duplicar_str(parametros_a_procesar[i]);
+        if(vector_strings_auxiliar[i-1] == NULL){
+            hubo_fallo = true;
+            liberar_strings_recolectados(vector_strings_auxiliar, duplicados_hasta_el_momento);
+        }
+
+        duplicados_hasta_el_momento++;
+
+    }
+    if(hubo_fallo){
+        return NULL;
+    }
+
+    for(int i = 1; i <= 6; i++){ 
+        parametros_pokemon = vtradd(parametros_pokemon, vector_strings_auxiliar[i-1]);
+    }
+
+    return parametros_pokemon;
+
+}
+
+/**
  * Recibe argumentos relacionados al comando AGREGAR_POKEMON y un salon (ya inicializado).
  * Agrega a un entrenador determinado el pokemon con los datos que posean los argumentos y devuelve
  * un string de output "OK".
 */
 char* salon_pedir_agregar_pokemon(salon_t* salon, char** argumentos){
 
-    return NULL;
+    if(vtrlen(argumentos) != 2){
+        return NULL;
+    }
+    
+    char** parametros_a_procesar = split(argumentos[1], SEPARADOR_PARAMETROS_COMANDO);
+    if(vtrlen(parametros_a_procesar) != 7){
+        vtrfree(parametros_a_procesar);
+        return NULL;
+    }
+
+    entrenador_t* vector_entrenadores[salon->cantidad_entrenadores];
+    arbol_recorrido_inorden(salon->abb_entrenadores, (void**)vector_entrenadores, salon->cantidad_entrenadores);
+
+    entrenador_t* entrenador_buscado = buscar_entrenador_con_nombre(parametros_a_procesar[0], vector_entrenadores, salon->cantidad_entrenadores);
+    if(!entrenador_buscado){
+        vtrfree(parametros_a_procesar);
+        return NULL;
+    }
+
+    char** parametros_pokemon = duplicar_parametros_pokemon(parametros_a_procesar);
+    if(!parametros_pokemon){
+        vtrfree(parametros_a_procesar);
+        return NULL;
+    }
+    
+    int resultado_agregado = entrenador_agregar_pokemon_leido(entrenador_buscado, parametros_pokemon);
+
+    vtrfree(parametros_a_procesar);
+    vtrfree(parametros_pokemon);
+
+    char* string_resultante = malloc(3*sizeof(char));
+    if((resultado_agregado == FALLO) || !string_resultante){
+        return NULL;
+    }
+    strcpy(string_resultante, "OK");
+
+    return string_resultante;
 
 }
 
@@ -459,11 +548,44 @@ char* salon_pedir_agregar_pokemon(salon_t* salon, char** argumentos){
  * Recibe argumentos relacionados al comando QUITAR_POKEMON y un salon (ya inicializado).
  * Intenta quitar a un entrenador determinado el pokemon con el nombre que posean los argumentos.
  * Devuelve un string de output "OK" si pudo quitarlo o NULL en caso de que el entrenador tenga solo
- * un pokemon restante en su equipo.
+ * un pokemon restante en su equipo (o en caso de error).
 */
 char* salon_pedir_quitar_pokemon(salon_t* salon, char** argumentos){
 
-    return NULL;
+    if(vtrlen(argumentos) != 2){
+        return NULL;
+    }
+    char** parametros_a_procesar = split(argumentos[1], SEPARADOR_PARAMETROS_COMANDO);
+    if(vtrlen(parametros_a_procesar) != 2){
+        vtrfree(parametros_a_procesar);
+        return NULL;
+    }
+
+    entrenador_t* vector_entrenadores[salon->cantidad_entrenadores];
+    arbol_recorrido_inorden(salon->abb_entrenadores, (void**)vector_entrenadores, salon->cantidad_entrenadores);
+
+    entrenador_t* entrenador_buscado = buscar_entrenador_con_nombre(parametros_a_procesar[0], vector_entrenadores, salon->cantidad_entrenadores);
+    char* nombre_pokemon_a_quitar = parametros_a_procesar[1];
+    if(!entrenador_buscado || (strlen(nombre_pokemon_a_quitar) == 0)){
+        vtrfree(parametros_a_procesar);
+        return NULL;
+    }
+    
+    int resultado_quitar = entrenador_quitar_pokemon(entrenador_buscado, nombre_pokemon_a_quitar);
+    
+    vtrfree(parametros_a_procesar);
+    
+    if(resultado_quitar == FALLO){
+        return NULL;
+    }
+
+    char* string_resultante = malloc(3*sizeof(char));
+    if(!string_resultante){
+        return NULL;
+    }
+    strcpy(string_resultante, "OK");
+
+    return string_resultante;
 
 }
 
@@ -474,7 +596,33 @@ char* salon_pedir_quitar_pokemon(salon_t* salon, char** argumentos){
 */
 char* salon_pedir_guardado(salon_t* salon, char** argumentos){
 
-    return NULL;
+    if(vtrlen(argumentos)!=2){
+        return NULL;
+    }
+
+    char** parametros_a_procesar = split(argumentos[1], SEPARADOR_PARAMETROS_COMANDO);
+    if(vtrlen(parametros_a_procesar) != 1){
+        vtrfree(parametros_a_procesar);
+        return NULL;
+    }
+
+    char* nombre_archivo_a_guardar = parametros_a_procesar[0];
+    if(strlen(nombre_archivo_a_guardar)==0){
+        vtrfree(parametros_a_procesar);
+        return NULL;
+    }
+
+    int resultado_guardado = salon_guardar_archivo(salon, nombre_archivo_a_guardar);
+
+    char* string_resultante = malloc(3*sizeof(char));
+    if(!string_resultante || (resultado_guardado==FALLO)){
+        vtrfree(parametros_a_procesar);
+        return NULL;
+    }
+    strcpy(string_resultante, "OK");
+
+    vtrfree(parametros_a_procesar);
+    return string_resultante;
 
 }
 

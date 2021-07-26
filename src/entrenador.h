@@ -8,8 +8,6 @@ typedef struct _pokemon_t pokemon_t;
 
 typedef struct _entrenador_t entrenador_t;
 
-
-
 /**
  * Reserva en memoria un entrenador con los datos recibidos.
  * Los datos vienen separados en strings en un vector
@@ -59,6 +57,13 @@ bool entrenador_escribir_en_archivo(void* entrenador, void* archivo_a_escribir);
 int entrenador_agregar_pokemon_leido(entrenador_t* entrenador, char** datos_pokemon);
 
 
+/**
+ * Remueve el pokemon con el nombre recibido del equipo del entrenador.
+ * Devuelve 0 si pudo quitarlo o -1 en caso de error o de que el 
+ * entrenador solo tenía ese pokemon restante en su equipo.
+*/
+int entrenador_quitar_pokemon(entrenador_t* entrenador, char* nombre_pokemon);
+
 
 /**
  * Compara los nombres de dos entrenadores entre sí (Recibe a los ENTRENADORES como punteros genéricos).
@@ -72,7 +77,6 @@ int entrenador_agregar_pokemon_leido(entrenador_t* entrenador, char** datos_poke
 int entrenador_comparar_nombres(void* entrenador_1, void* entrenador_2);
 
 
-
 /**
  * Compara los equipos de dos entrenadores pokemon por pokemon según
  * la regla de batalla recibida.
@@ -83,13 +87,6 @@ int entrenador_comparar_nombres(void* entrenador_1, void* entrenador_2);
  * Devuelve NULL en caso de error.
 */
 char* entrenador_enfrentar(entrenador_t* entrenador_1, entrenador_t* entrenador_2 , char* regla_de_batalla);
-
-
-/**
- * Remueve el pokemon con el nombre recibido del equipo del entrenador.
- * Devuelve un puntero al entrenador con su equipo actualizado o NULL en caso de error.
-*/
-entrenador_t* entrenador_quitar_pokemon(entrenador_t* entrenador, char* nombre_pokemon);
 
 
 /**
@@ -151,14 +148,8 @@ char* entrenador_obtener_info_concatenada(entrenador_t* entrenador);
 
 
 /**
-*/
-//entrenador_t* entrenador_();
-
-/**
  * Destruye al entrenador recibido y a su equipo pokemon.
 */
 void entrenador_destruir(void* entrenador);
-
-
 
 #endif // ENTRENADOR_H_

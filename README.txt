@@ -1,5 +1,5 @@
 
-▒▒▒▒▒▒▒▒▒▒▒▒  Consideraciones iniciales y estructuras utilizadas  ▒▒▒▒▒▒▒▒▒▒▒▒ 
+▒▒▒▒▒▒▒▒▒▒▒▒  Consideraciones y estructuras utilizadas  ▒▒▒▒▒▒▒▒▒▒▒▒ 
 
     Decidí realizar todas las pruebas en un mismo pruebas.c para
     evitar modificar el makefile al probar cambios en archivos
@@ -10,19 +10,21 @@
     entrenador_t) e iré adentrando en decisiones tomadas
     para definirlas conforme sea necesario.
     Posteriormente abarcaré la explicación de la estructura usada
-    para las reglas y para procesar los comandos que recibe el
-    interprete.
+    para procesar los comandos que recibe el interprete.
 
     Se tiene en la estructura salon_t:
-        - Un puntero a abb_t (arbol binario de búsqueda) que se
+        - Un abb_t (arbol binario de búsqueda) que se
         usará para almacenar a los entrenadores.
+        -La cantidad de entrenadores que almacene actualmente el salon.
+        -Un hash para almacenar los comandos. 
 
         Decidí utilizar un abb ya que:
             Todos los comandos relacionados exclusivamente a
             entrenadores solicitan la información de los mismos
             ordenados por orden alfabético, con lo cual haciendo
             uso de un comparador se pueden tener los entrenadores
-            permanentemente ordenados al insertarlos en el arbol.
+            permanentemente ordenados sencillamente al insertarlos en el
+            arbol.
 
             Además de esto, se sabe por enunciado que los
             entrenadores no tienen nombres repetidos, que si bien 
@@ -39,14 +41,51 @@
             entrenadores mientras se insertan en una lista a la hora
             de leer un archivo que directamente usar un abb que
             por medio del comparador ya los tenga ordenados.
-
-            Al tenerlos en un abb no es muy complicado pensar que 
+            (Como alternativa se podría modificar la implementación
+            del tda lista para tener listas ordenadas, pero considero que
+            no vale la pena teniendo listo el arbol).
+            Al tenerlos en un abb es visible pensar en que 
             se puede usar la función arbol_recorrido_inorden, o el
             iterador de arbol (con recorrido inorden) para 
             obtener todos los entrenadores de manera ordenada e
-            insertarlos todos en una lista nueva.
+            insertarlos todos en una lista nueva si asi se quiere.
 
-        
+        Decidí usar un hash para los comandos debido a que:
+            Cada comando tiene un nombre único, con lo cual éste puede
+            ser usado como la clave de cada comando.
+            Para este caso específico no se requiere ningún orden para
+            almacenar los comandos, con lo que hacer uso de un hash
+            cada que se quiera obtener un comando a utilizar a partir
+            de su nombre representa una ventaja en cuanto a complejidad.
+
+            En clase se discutieron distintas formas de abordar esta idea
+            tomando en cuenta que reservar memoria para un hash y sus
+            respectivos comandos para esta situación es bastante pesado
+            si se piensa crear cada que se ejecuta un comando, con lo que 
+            se pierde mucho la idea de querer hacerlo eficiente (tomando
+            en cuenta además que los comandos a ejecutar son siempre los
+            mismos para esta implementación y no se van a querer agregar
+            comandos adicionales posteriormente).
+            Debido a todo lo anterior, se llegó a pensar como idea en clase
+            el querer hacer una variable global static con el hash, 
+            proponiendose precisamente porque los comandos iban a ser
+            los mismos siempre (Sin embargo se nos advirtió que eso
+            conllevaba riesgos adicionales que excedían los conocimientos
+            vistos en la materia).
+            
+            Tomando en cuenta todo lo dicho, decidí tener el hash de 
+            comandos en la estructura salon e inicializarla con todos
+            los comandos predeterminados a la hora de crear un salon
+            (es decir, cuando se lee un archivo).
+            De esta forma evito los problemas que conlleve usar variables
+            globales, que, si bien se puede justificar su uso para este caso
+            en particular, tiene riesgos en su preferencia evitables por
+            desconocimiento de los mismos.
+            Además, reservar e inicializar el hash (junto con sus comandos) al crear 
+            el salón evade también lo mencionado antes (de inicializarlo
+            cada que se procese un comando, lo cual generaría una completa
+            perdida de eficiencia y se perdería la ventaja deseada de usar un hash).
+            
     Se tiene en la estructura entrenador_t:
         -Un string para el nombre del entrenador.
         -La cantidad de victorias del mismo.
@@ -58,12 +97,8 @@
         una lista para cuando se quieran comparar equipos entre entrenadores, 
         por medio del iterador externo de lista).
 
-        -Un bool para saber si dicho entrenador agotó sus pokemones disponibles para
-        la batalla (es decir, es un campo usado para cuando se quieran comparar dos 
-        entrenadores por comando. Es como un indicador de derrota).
-
     
-    Se tiene inclusión a "util.h", archivo implementado en el TP1 para manejo de vectores
+    Se tiene inclusión a "util.h", archivo con .c implementado en el TP1 para manejo de vectores
     de punteros dinámicos terminados en NULL y lectura de lineas de archivos
     de texto separados por caracteres. 
     No se modificó nada, por ende no se hacen pruebas de sus funciones.

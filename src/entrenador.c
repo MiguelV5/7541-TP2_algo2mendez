@@ -40,7 +40,6 @@ struct _entrenador_t{
     char* nombre;
     int victorias;
     lista_t* equipo;
-    bool pokemones_agotados;
 };
 
 
@@ -67,7 +66,6 @@ void asignar_datos_entrenador(entrenador_t* entrenador, char** datos_entrenador)
     
     strcpy(entrenador->nombre, datos_entrenador[0]);
     entrenador->victorias = atoi(datos_entrenador[1]);
-    entrenador->pokemones_agotados = false;
 
 }
 
@@ -133,7 +131,7 @@ bool entrenador_verificar_identicos(entrenador_t* entrenador_1, entrenador_t* en
 /**
  * Escribe todos los campos de un pokemon en un archivo recibido
  * (previamente abierto).
- * Siempre devuelve false.
+ * Siempre devuelve true.
 */
 bool pokemon_escribir_en_archivo(void* pokemon, void* archivo_a_escribir){
 
@@ -142,7 +140,7 @@ bool pokemon_escribir_en_archivo(void* pokemon, void* archivo_a_escribir){
     
     fprintf(archivo, FORMATO_ESCRITURA_POKEMON, _pokemon->nombre, _pokemon->nivel, _pokemon->defensa, _pokemon->fuerza, _pokemon->inteligencia, _pokemon->velocidad);
 
-    return false;
+    return true;
 
 }
 
@@ -201,6 +199,65 @@ int entrenador_agregar_pokemon_leido(entrenador_t* entrenador, char** datos_poke
     return resultado_agregar;
 
 }
+
+
+
+/**
+ * Dado el nombre de un pokemon, busca la posición en la que se encuentra almacenado en
+ * el equipo recibido.
+ * Devuelve dicha posición o -1 en caso de no haberse encontrado o en caso de error.
+*/
+int pokemon_buscar_posicion_con_nombre(lista_t* equipo, char* nombre_pokemon){
+
+    lista_iterador_t* iter_pokemon = lista_iterador_crear(equipo);
+    if(!iter_pokemon){
+        return FALLO;
+    }
+    int posicion = 0;
+    bool fue_encontrado = false;
+    pokemon_t* poke_actual = NULL;
+    while(!fue_encontrado && lista_iterador_tiene_siguiente(iter_pokemon)){
+
+        poke_actual = lista_iterador_elemento_actual(iter_pokemon);
+
+        if(strcmp(nombre_pokemon, poke_actual->nombre)==0){
+            fue_encontrado = true;
+        }
+        else{
+            posicion++;
+        }
+
+        lista_iterador_avanzar(iter_pokemon);
+    
+    }
+    lista_iterador_destruir(iter_pokemon);
+    
+    if(fue_encontrado==false){
+        return FALLO;
+    }
+
+    return posicion;
+
+}
+
+
+int entrenador_quitar_pokemon(entrenador_t* entrenador, char* nombre_pokemon){
+
+    if(entrenador_tamanio_equipo(entrenador)==1){
+        return FALLO;
+    }
+
+    int posicion_pokemon_buscado = pokemon_buscar_posicion_con_nombre(entrenador->equipo, nombre_pokemon);
+    if(posicion_pokemon_buscado == FALLO){
+        return FALLO;
+    }
+
+    int resultado_eliminacion = lista_borrar_de_posicion(entrenador->equipo, (size_t)posicion_pokemon_buscado);
+
+    return resultado_eliminacion;
+
+}
+
 
 
 
@@ -450,15 +507,6 @@ char* entrenador_enfrentar(entrenador_t* entrenador_1, entrenador_t* entrenador_
     lista_iterador_destruir(iter_2);
     
     return resultado_batallas;
-
-}
-
-
-
-
-entrenador_t* entrenador_quitar_pokemon(entrenador_t* entrenador, char* nombre_pokemon){
-
-    return NULL;
 
 }
 
