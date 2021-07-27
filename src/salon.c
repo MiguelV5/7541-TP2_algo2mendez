@@ -57,6 +57,9 @@ struct _salon_t{
 };
 
 
+//=========================================================================================//
+
+//////////////  FUNCIONES AUXILIARES EXTRAS  //////////////
 
 /**
  * Devuelve un string (reservado en memoria) duplicado del str.
@@ -74,6 +77,21 @@ char* duplicar_str(const char* str){
 
 }
 
+/**
+ * Libera todos los strings del vector de punteros hasta el tamanio dado.
+*/
+void liberar_strings_recolectados(char** vector_strings, size_t tamanio){
+
+    for(size_t i = 0; i < tamanio; i++){
+        free(vector_strings[i]);
+    }
+
+}
+
+
+//=========================================================================================//
+
+//////////////  COMANDO_T  //////////////
 
 /**
  * Crea un comando a partir de:
@@ -124,21 +142,11 @@ void comando_destruir(void* comando){
 
 
 
+//=========================================================================================//
 
+//////////////  EJECUTORES (DE COMANDOS)  //////////////
 
-
-
-
-/**
- * Libera todos los strings del vector de punteros.
-*/
-void liberar_strings_recolectados(char** vector_strings, size_t tamanio_vector){
-
-    for(size_t i = 0; i < tamanio_vector; i++){
-        free(vector_strings[i]);
-    }
-
-}
+////////  RELACIONADOS A COMANDO "ENTRENADORES"  ////////
 
 /**
  * Dado un vector de strings, concatena a cada uno de los mismos en orden separandolos con un "\n".
@@ -210,11 +218,6 @@ char* procesar_parametro_final_entrenador(salon_t* salon, bool (*filtro)(entrena
     }
 
     string_resultante = recopilacion_y_formateo_de_strings(info_a_concatenar, cantidad_info_a_concatenar);
-    if(!string_resultante){
-        liberar_strings_recolectados(info_a_concatenar, cantidad_info_a_concatenar);
-        lista_destruir(entrenadores_filtrados);
-        return NULL;
-    }
 
     liberar_strings_recolectados(info_a_concatenar, cantidad_info_a_concatenar);
     lista_destruir(entrenadores_filtrados);
@@ -270,10 +273,6 @@ char* salon_pedir_entrenadores_listados(salon_t* salon, char** argumentos){
         }
 
         string_resultante = recopilacion_y_formateo_de_strings(informacion_entrenadores, salon->cantidad_entrenadores);
-        if(!string_resultante){
-            liberar_strings_recolectados(informacion_entrenadores, salon->cantidad_entrenadores);
-            return NULL;
-        }
 
         liberar_strings_recolectados(informacion_entrenadores, salon->cantidad_entrenadores);
 
@@ -298,6 +297,9 @@ char* salon_pedir_entrenadores_listados(salon_t* salon, char** argumentos){
     return string_resultante;
 
 }
+
+
+////////  RELACIONADOS A COMANDO "EQUIPO"  ////////
 
 /**
  * Busca linealmente un entrenador del vector de punteros a entrenadores a partir de su nombre.
@@ -362,13 +364,15 @@ char* salon_pedir_equipo_de_entrenador(salon_t* salon, char** argumentos){
 }
 
 
+////////  RELACIONADOS A COMANDO "REGLAS"  ////////
+
 /**
  * Calcula la memoria necesaria para reservar un string con todas las reglas concatenadas del salon.
  * Devuelve el calculo realizado.
 */
 size_t calcular_memoria_para_reglas(){
 
-    return (strlen(REGLA_CLASICA)+strlen(REGLA_MODERNA)+strlen(REGLA_RESISTENCIA)+strlen(REGLA_FISICA)+strlen(REGLA_ELEGANCIA) + 6); // +5 para los \n al concatenar y +1 para el \0.
+    return (strlen(REGLA_CLASICA)+strlen(REGLA_MODERNA)+strlen(REGLA_RESISTENCIA)+strlen(REGLA_FISICA)+strlen(REGLA_ELEGANCIA) + 6); // +5 para los '\n' al concatenar y +1 para el '\0'.
 
 }
 
@@ -403,6 +407,9 @@ char* salon_pedir_reglas(salon_t* salon, char** argumentos){
     return string_resultado;
 
 }
+
+
+////////  RELACIONADOS A COMANDO "COMPARAR"  ////////
 
 /**
  * Recibe el nombre de una regla pedida por argumento de comando.
@@ -459,6 +466,9 @@ char* salon_comparar_entrenadores(salon_t* salon, char** argumentos){
     return resultados_enfrentamiento;
 
 }
+
+
+////////  RELACIONADOS A COMANDO "AGREGAR_POKEMON" Y "QUITAR_POKEMON"  ////////
 
 /**
  * Duplica los strings que se tenían en los 'parametros_a_procesar' que correspondian a la información
@@ -589,6 +599,9 @@ char* salon_pedir_quitar_pokemon(salon_t* salon, char** argumentos){
 
 }
 
+
+////////  RELACIONADOS A COMANDO "GUARDAR"  ////////
+
 /**
  * Recibe argumentos relacionados al comando GUARDAR y un salon (ya inicializado).
  * Guarda el salon a un archivo a partir del nombre que posea el argumento y devuelve un string
@@ -628,10 +641,11 @@ char* salon_pedir_guardado(salon_t* salon, char** argumentos){
 
 
 
+
+
 //=========================================================================================//
 
-
-
+//////////////  LECTURA DE ARCHIVOS Y ALMACENAMIENTO EN MEMORIA  //////////////
 
 
 /**
@@ -653,7 +667,7 @@ int verificacion_entrenadores_validos(salon_t* salon){
 
     size_t i = 0;
     size_t j = 0;
-    while((i < salon->cantidad_entrenadores) && (hubo_entrenador_invalido==false)){
+    while((i < salon->cantidad_entrenadores) && (hubo_entrenador_invalido==false)){ // Ver README.txt, sección Aclaraciones.
 
         while((j < salon->cantidad_entrenadores) && (hubo_entrenador_invalido==false)){
             if(i != j){
@@ -784,10 +798,6 @@ salon_t* almacenador_salon(char* linea_leida, FILE* archivo_salon, salon_t* salo
 
 
 
-
-
-
-
 /**
  * Hace free de todos los punteros recibidos en caso de falla al agregar los comandos por defecto.
  * (Mini-función auxiliar para ahorrar lineas de verificaciones al agregar los comandos por defecto).
@@ -855,7 +865,6 @@ bool insertar_comandos_predeterminados(hash_t* hash_comandos, comando_t* c_1, co
  * un diccionario de comandos predeterminados a ser usados posteriormente
  * en salon_ejecutar_comando. 
  * Devuelve 0 si pudo inicializarlos correctamente, -1 en caso contrario.
- * (Leer README.txt, sección Aclaraciones).
 */
 int salon_agregar_comandos_por_defecto(salon_t* salon){
 
@@ -921,12 +930,6 @@ int salon_agregar_comandos_por_defecto(salon_t* salon){
 
 
 
-
-
-
-
-
-
 salon_t* salon_leer_archivo(const char* nombre_archivo){
 
     if(!nombre_archivo){
@@ -976,8 +979,9 @@ salon_t* salon_leer_archivo(const char* nombre_archivo){
 }
 
 
+//=========================================================================================//
 
-
+//////////////  GUARDADO DE SALON EN ARCHIVO  //////////////
 
 /**
  * Escribe un salon en un archivo de texto (previamente abierto).
@@ -990,10 +994,6 @@ int salon_a_texto(salon_t* salon, FILE* archivo_nuevo){
     return cantidad_entrenadores_escritos;
 
 }
-
-
-
-
 
 int salon_guardar_archivo(salon_t* salon, const char* nombre_archivo){
 
@@ -1016,8 +1016,9 @@ int salon_guardar_archivo(salon_t* salon, const char* nombre_archivo){
 
 }
 
+//=========================================================================================//
 
-
+//////////////  AGREGAR ENTRENADOR  //////////////
 
 salon_t* salon_agregar_entrenador(salon_t* salon, entrenador_t* entrenador){
 
@@ -1040,8 +1041,9 @@ salon_t* salon_agregar_entrenador(salon_t* salon, entrenador_t* entrenador){
 }
 
 
+//=========================================================================================//
 
-
+//////////////  FILTRAR ENTRENADORES  //////////////
 
 lista_t* salon_filtrar_entrenadores(salon_t* salon , bool (*f)(entrenador_t*, void*), void* extra){
 
@@ -1077,7 +1079,9 @@ lista_t* salon_filtrar_entrenadores(salon_t* salon , bool (*f)(entrenador_t*, vo
 }
 
 
+//=========================================================================================//
 
+//////////////  EJECUTAR COMANDO  //////////////
 
 char* salon_ejecutar_comando(salon_t* salon, const char* comando){
 
@@ -1103,7 +1107,9 @@ char* salon_ejecutar_comando(salon_t* salon, const char* comando){
 }
 
 
+//=========================================================================================//
 
+//////////////  DESTRUIR  //////////////
 
 void salon_destruir(salon_t* salon){
 
@@ -1116,5 +1122,3 @@ void salon_destruir(salon_t* salon){
     free(salon);
 
 }
-
-

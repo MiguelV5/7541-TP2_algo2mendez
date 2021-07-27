@@ -999,7 +999,7 @@ void DadoSalon_AlGuardarConComandoConNombreCualquieraDeArchivo_SePuedeGuardarCor
 
 int main(){
 
-    pa2m_nuevo_grupo("//  PRUEBAS DE DESTRUCCIÓN DE ELEMENTOS EN LISTA  //"); //Debido a cambios efectuados en lista.h y lista.c (Ver README.txt).
+    pa2m_nuevo_grupo("//  PRUEBAS DE DESTRUCCIÓN DE ELEMENTOS EN LISTA  //"); //Debido a cambios efectuados en lista.h y lista.c (Ver README.txt, parte final de sección Consideraciones y estructuras utilizadas).
         pa2m_nuevo_grupo("Pruebas de creación de lista (modificación)");
             SinImportarSiSeDaONoSeDaDestructor_AlCrearLista_SeCreaCorrectamente();
 

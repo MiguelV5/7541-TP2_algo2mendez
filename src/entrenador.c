@@ -46,7 +46,7 @@ struct _entrenador_t{
 
 
 /**
- * Libera el puntero a pokemon recibido.
+ * Libera el pokemon recibido junto con su nombre.
 */
 void destructor_de_pokemon(void* pokemon){
 
@@ -58,6 +58,10 @@ void destructor_de_pokemon(void* pokemon){
 
 
 
+
+//=========================================================================================//
+
+//////////////  CREAR ENTRENADOR  //////////////
 
 /**
  * Le asigna los datos recibidos a los campos de un entrenador (EXCEPTO el equipo) previamente reservado en memoria
@@ -102,6 +106,11 @@ entrenador_t* entrenador_crear(char** datos_entrenador){
 
 
 
+
+//=========================================================================================//
+
+//////////////  EQUIPO VACIO  //////////////
+
 bool entrenador_equipo_vacio(void* entrenador, void* hubo_equipo_vacio){
 
     entrenador_t* _entrenador = entrenador;
@@ -120,13 +129,19 @@ bool entrenador_equipo_vacio(void* entrenador, void* hubo_equipo_vacio){
 
 
 
+//=========================================================================================//
+
+//////////////  VERIF. IDENTICOS  //////////////
+
 bool entrenador_verificar_identicos(entrenador_t* entrenador_1, entrenador_t* entrenador_2){
 
     return (strcmp(entrenador_1->nombre, entrenador_2->nombre) == 0);
 
 }
 
+//=========================================================================================//
 
+//////////////  ESCRITURA EN ARCHIVOS  //////////////
 
 /**
  * Escribe todos los campos de un pokemon en un archivo recibido
@@ -158,6 +173,11 @@ bool entrenador_escribir_en_archivo(void* entrenador, void* archivo_a_escribir){
 }
 
 
+
+
+//=========================================================================================//
+
+//////////////  ALMACENAMIENTO EN MEMORIA DE DATOS LEIDOS  //////////////
 
 /**
  * Le asigna los datos pokemon a los campos de un pokemon previamente reservado en memoria.
@@ -201,6 +221,11 @@ int entrenador_agregar_pokemon_leido(entrenador_t* entrenador, char** datos_poke
 }
 
 
+
+
+//=========================================================================================//
+
+//////////////  QUITAR POKEMON  //////////////
 
 /**
  * Dado el nombre de un pokemon, busca la posición en la que se encuentra almacenado en
@@ -261,6 +286,10 @@ int entrenador_quitar_pokemon(entrenador_t* entrenador, char* nombre_pokemon){
 
 
 
+//=========================================================================================//
+
+//////////////  COMPARAR NOMBRES  //////////////
+
 int entrenador_comparar_nombres(void* entrenador_1, void* entrenador_2){
     
     entrenador_t* _entrenador_1 = entrenador_1;
@@ -273,6 +302,11 @@ int entrenador_comparar_nombres(void* entrenador_1, void* entrenador_2){
 }
 
 
+
+
+//=========================================================================================//
+
+//////////////  COMPARACIONES (ENFRENTAMIENTOS ENTRE ENTRENADORES)  //////////////
 
 /**
  * Devuele true si la regla de batalla es CLASICA, false en caso contrario
@@ -512,6 +546,12 @@ char* entrenador_enfrentar(entrenador_t* entrenador_1, entrenador_t* entrenador_
 
 
 
+
+
+//=========================================================================================//
+
+//////////////  OBTENCION DE NOMBRE  //////////////
+
 char* entrenador_obtener_nombre(entrenador_t* entrenador){
 
     if(!entrenador){
@@ -528,6 +568,12 @@ char* entrenador_obtener_nombre(entrenador_t* entrenador){
 
 }
 
+
+
+
+//=========================================================================================//
+
+//////////////  RELACIONADAS A ENTRENADOR_OBTENER_EQUIPO_CONCATENADO  //////////////
 
 /**
  * Devuelve la cantidad necesaria de memoria que se requiere para obtener un string que concatene la
@@ -548,11 +594,11 @@ size_t calcular_tamanio_reserva_para_equipo(lista_t* equipo, char** strings_a_co
 }
 
 /**
- * Libera todos los strings del vector de punteros.
+ * Libera todos los strings del vector de punteros hasta el tamanio dado.
 */
-void liberar_strings_recopilados(char** vector_strings, size_t tamanio_vector){
+void liberar_strings_recopilados(char** vector_strings, size_t tamanio){
 
-    for(size_t i = 0; i < tamanio_vector; i++){
+    for(size_t i = 0; i < tamanio; i++){
         free(vector_strings[i]);
     }
 
@@ -643,7 +689,7 @@ bool hay_que_saltar_de_linea(size_t posicion){
  * Realiza la concatenacion final de todos los datos pokemon.
  * Devuelve el string resultante.
 */
-char* concatenar_info_con_formato(lista_t* equipo, char** strings_por_cada_campo, size_t totalidad_de_campos){
+char* concatenar_info_pokemon_con_formato(lista_t* equipo, char** strings_por_cada_campo, size_t totalidad_de_campos){
 
     size_t tamanio_total_reserva =  calcular_tamanio_reserva_para_equipo(equipo, strings_por_cada_campo, totalidad_de_campos);
 
@@ -723,7 +769,7 @@ char* equipo_obtener_string_concatenado(lista_t* equipo, size_t cantidad_pokemon
         return NULL;
     }
 
-    char* resultado_concatenado = concatenar_info_con_formato(equipo, strings_por_cada_campo, totalidad_de_campos);
+    char* resultado_concatenado = concatenar_info_pokemon_con_formato(equipo, strings_por_cada_campo, totalidad_de_campos);
 
     liberar_strings_recopilados(strings_por_cada_campo, almacenados_hasta_el_momento);
 
@@ -747,6 +793,13 @@ char* entrenador_obtener_equipo_concatenado(entrenador_t* entrenador){
 }
 
 
+
+
+
+//=========================================================================================//
+
+//////////////  TAMANIO EQUIPO  //////////////
+
 size_t entrenador_tamanio_equipo(entrenador_t* entrenador){
 
     if(!entrenador){
@@ -759,7 +812,9 @@ size_t entrenador_tamanio_equipo(entrenador_t* entrenador){
 
 
 
+//=========================================================================================//
 
+//////////////  CANTIDAD DE VICTORIAS  //////////////
 
 int entrenador_cantidad_victorias(entrenador_t* entrenador){
 
@@ -771,6 +826,10 @@ int entrenador_cantidad_victorias(entrenador_t* entrenador){
 
 }
 
+
+//=========================================================================================//
+
+//////////////  TIENE VICTORIAS MÍNIMAS (Función de filtro)  //////////////
 
 bool entrenador_tiene_victorias_minimas(entrenador_t* entrenador, void* victorias_minimas){
 
@@ -784,6 +843,11 @@ bool entrenador_tiene_victorias_minimas(entrenador_t* entrenador, void* victoria
 
 }
 
+
+
+//=========================================================================================//
+
+//////////////  TIENE POKEMON (Función de filtro)  //////////////
 
 bool entrenador_tiene_pokemon(entrenador_t* entrenador, void* nombre_pokemon){
 
@@ -813,6 +877,9 @@ bool entrenador_tiene_pokemon(entrenador_t* entrenador, void* nombre_pokemon){
 }
 
 
+//=========================================================================================//
+
+//////////////  ENTRENADOR_OBTENER_INFO_CONCATENADA  //////////////
 
 char* entrenador_obtener_info_concatenada(entrenador_t* entrenador){
 
@@ -838,8 +905,9 @@ char* entrenador_obtener_info_concatenada(entrenador_t* entrenador){
 }
 
 
+//=========================================================================================//
 
-
+//////////////  DESTRUIR  //////////////
 
 void entrenador_destruir(void* entrenador){
 
