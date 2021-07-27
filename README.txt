@@ -373,4 +373,10 @@
         de lista, que aplica la función mientras que la misma devuelva true.
         Caso contrario es lo que sucede con entrenador_escribir_en_archivo, que al ser usada solo
         en el iterador interno de abb requería devovler false para seguirse aplicando.
+
+    ▒▒▒▒  Sobre función entrenador_equipo_vacio  ▒▒▒▒
+
+        Esta función es usada para verificar validez de entrenadores almacenados a la hora de 
+        finalizar la lectura de archivos. Su finalidad es ser usada con el iterador de arbol,
+        por lo cual está adaptada recibiendo sus parametros como void*.
  
