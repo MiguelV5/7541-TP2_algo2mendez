@@ -380,3 +380,8 @@
         finalizar la lectura de archivos. Su finalidad es ser usada con el iterador de arbol,
         por lo cual está adaptada recibiendo sus parametros como void*.
  
+    ▒▒▒▒  Sobre tda hash  ▒▒▒▒
+
+        Tuvieron que hacerse pequeñas modificaciones debido a la adición del flag -Wconversion, pero fueron
+        solamente algunos casteos por conversiones de size_t a int, o de char a size_t (en la función de hashing
+        solamente, corrí todas las pruebas de hash nuevamente para asegurarme de que siguiera en buen funcionamiento). Lo menciono de igual manera para dejarlo constatado.
